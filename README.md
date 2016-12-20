@@ -7,10 +7,11 @@ Is an on-going project that builds deep feed-forward computational graph complet
 
 Goal: finish building CNN, batch normalization, LSTM, GRU, NTM and train at least one model using each of these modules.
 
-### First test: speed vs. `tensorflow`
+### Test 1: speed against `tensorflow`
+
+(Unfair comparision ahead)
 
 ```python
-
 batch = 128
 inp_dim = 784
 hid_dim = 64
@@ -89,6 +90,10 @@ print time.time() - s
 ```
 0.620244026184
 ```
+
+### Test 2: MNIST classification
+
+On MNIST dataset, `mnist.py` achieves 95.3% accuracy.
 
 ### License
 GPL 3.0 (see License in this repo)

@@ -1,9 +1,7 @@
 from variable import VariableBank
-from module import module_class_factory
-
+from modules.module import module_class_factory
 
 class Network(object):
-
     def __init__(self):
         self._var_bank = VariableBank()
         self._modules = list() # TODO: upgrade this to DAG
