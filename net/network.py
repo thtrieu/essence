@@ -1,6 +1,5 @@
 from variable import VariableBank
-from module import module_class_factory, module_types
-from layer import layer_class_factory, layer_types
+from module import module_class_factory
 
 
 class Network(object):
@@ -10,41 +9,19 @@ class Network(object):
         self._modules = list() # TODO: upgrade this to DAG
         self._outlet = None
 
-    def top(self, name, *args, **kwargs):
-        kw = dict(kwargs)
-        trainable = True
-        if 'trainable' in kw:
-            trainable = kw['trainable']
-            del kw['trainable']
-
-        if name in module_types:
-            _top_module(self, name, trainable, *args, **kw)
-        else:
-            _top_layer(self, name, trainable, *args, **kw)
-
-
-    def _top_module(self, name, *args, **kwargs):
-        module_class = module_class_factory(name)
-        variables_slot = self._var_bank.initialize(
+    def add(self, name, *args, **kwargs):
+        variables_slot = self._var_bank.issue(
             name, *args, **kwargs)
-        module = module_class(
+        module = module_class_factory(name)(
             variables_slot, *args, **kwargs)
         self._modules.append(module)
 
-    def _top_layer(self, name, *args, **kwargs):
-        layer_class = layer_class_factory(name)
-        layer = layer_class(*args, **kwargs)
-        for description in layer.modules_description:
-            module_name, args, kwargs = description
-            self.top(module_name, *args, **kwargs)
-
-    def setup_training(self, loss_name, optimizer_name,
-                       *args, **kwargs):
-        self.stack_module(loss_type, False)
+    def set_optimizer(self, optimizer_name,
+                      *args, **kwargs):
         self._var_bank.set_optimizer(
-            optimizer_name, minimize, *args, **kwargs)
+            optimizer_name, *args, **kwargs)
 
-    def _forward(self, feed_in, target = None):
+    def _forward(self, feed_in, target):
         if target is not None: 
             loss_module = self._modules[-1]
             loss_module.set_target(target)
@@ -63,7 +40,7 @@ class Network(object):
         return self._outlet
 
     def train(self, feed_in, feed_out):
-        self._forward(feed_in)
+        self._forward(feed_in, feed_out)
         self._backprop()
         return self._modules[-1].loss
 

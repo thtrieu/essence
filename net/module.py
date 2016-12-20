@@ -51,11 +51,10 @@ class linear(Activate):
 
 class relu(Activate):
 	def transform(self, x):
-		self.activation = np.maximum(0., x)
+		self.activation = x * (x > 0.)
 
-	def partial(self):
-		a = self.activation
-		p = (a > 0.).astype(np.float32)
+	def backward(self, grad):
+		p = self.activation > 0.
 		return np.multiply(grad, p)
 
 class softmax(Activate):
@@ -77,15 +76,15 @@ class add_biases(Module):
         return x + b
 
     def backward(self, grad):
-        self._slot.set_grad('b', grad.sum, -1)
+        self._slot.set_grad('b', grad.sum, 0)
         return grad
 
 class matmul(Module):
-    def forward(self, x):
-        self._x = x
-        w = self._slot.val('w')
-        return x.dot(w)
-    
+	def forward(self, x):
+		self._x = x
+		w = self._slot.val('w')
+		return x.dot(w)
+
 	def _cal_grad(self, x, g):
 		return x.transpose().dot(g)
 
@@ -113,32 +112,46 @@ class Loss(Module):
 	def _setup(self, *args, **kwargs):
 		self._loss = None
 
+	def set_target(self, target):
+		self._t = target
+
 	def forward(self, x):
 		self._cal_loss(x)
 		return x
-
-	def set_target(self, target):
-		self._t = target
 
 	@property
 	def loss(self):
 		return self._loss
 
-class crossent(Loss):
+class softmax_crossent(Loss):
 	def _cal_loss(self, x):
-		self._loss = np.multiply(self._t, np.log(x)).mean()
+		row_max = x.max(1, keepdims = True)
+		e_x = np.exp(x - row_max)
+		e_sum = e_x.sum(1, keepdims = True)
+		self._softed = np.divide(e_x, e_sum)
+		crossed = - np.multiply(self._t, np.log(self._softed))
+		self._loss = crossed.sum(1).mean()
 
 	def backward(self, grad):
-		p = self._t.divide(1. / (self._x + 1e-10))
+		return grad * (self._softed - self._t)
+
+class crossent(Loss):
+	def _cal_loss(self, x):
+		self._x = x
+		crossed = - np.multiply(self._t, np.log(x))
+		self._loss = crossed.sum(1).mean()
+
+	def backward(self, grad):
+		p = - np.divide(self._t, self._x + 1e-20)
 		return grad * p
 
 class l2(Loss):
 	def _cal_loss(self, x):
-		self._d = x - self._t
-		self._loss = np.pow(self._d, 2)
+		self._diff = x - self._t
+		self._loss = np.pow(self._diff, 2)
 
 	def backward(self, grad):
-		self._loss = 2 * self._d
+		return grad * self._d
 
 """
 Module Class Factory
@@ -154,10 +167,9 @@ _module_class_factory = dict({
 	'bias': add_biases,
 	'dot': matmul,
 	'crossent': crossent,
+	'softmax_crossent': softmax_crossent,
 	'l2': l2,
 })
-
-module_types = _module_class_factory.keys()
 
 def module_class_factory(name):
 	assert name in _module_class_factory, \
