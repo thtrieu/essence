@@ -1,5 +1,5 @@
 from variable import VariableBank
-from modules.module import module_class_factory
+from modules import module_class_factory
 
 class Network(object):
     def __init__(self):

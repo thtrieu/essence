@@ -22,54 +22,6 @@ class reshape(Module):
 	def backward(self, grad):
 		return grad.reshape(self.old)		
 
-class Activate(Module):
-	"""
-	Modules whose output participates backprop
-	"""
-	def _setup(self, *args, **kwargs):
-		self.activation = None
-
-	def forward(self, x):
-		self.transform(x)
-		return self.activation
-
-class sigmoid(Activate):
-	def transform(self, x):
-		self.activation = 1. / (1. + np.exp(-x))
-
-	def backward(self, grad):
-		a = self.activation
-		p = np.multiply(a, 1. - a)
-		return np.multiply(grad, p)
-
-class linear(Activate):
-	def transform(self, x):
-		self.activation = x
-
-	def backward(self, grad):
-		return grad
-
-class relu(Activate):
-	def transform(self, x):
-		self.activation = x * (x > 0.)
-
-	def backward(self, grad):
-		p = self.activation > 0.
-		return np.multiply(grad, p)
-
-class softmax(Activate):
-	def transform(self, x):
-		row_max = x.max(1, keepdims = True)
-		e_x = np.exp(x - row_max)
-		e_sum = e_x.sum(1, keepdims = True)
-		self.activation = np.divide(e_x, e_sum)
-
-	def backward(self, grad):
-		a = self.activation
-		m = np.multiply(grad, a)
-		g = grad - m.sum(1, keepdims = True)
-		return np.multiply(g, a)
-
 class add_biases(Module):
     def forward(self, x):
     	b = self._slot.val('b')
@@ -108,70 +60,18 @@ class drop(Module):
 		grad_mask = grad / self.keep
 		return grad_mask * self.r
 
-class Loss(Module):
-	def _setup(self, *args, **kwargs):
-		self._loss = None
-
-	def set_target(self, target):
-		self._t = target
-
+class pad(Module):
 	def forward(self, x):
-		self._cal_loss(x)
-		return x
-
-	@property
-	def loss(self):
-		return self._loss
-
-class softmax_crossent(Loss):
-	def _cal_loss(self, x):
-		row_max = x.max(1, keepdims = True)
-		e_x = np.exp(x - row_max)
-		e_sum = e_x.sum(1, keepdims = True)
-		self._softed = np.divide(e_x, e_sum)
-		crossed = - np.multiply(self._t, np.log(self._softed))
-		self._loss = crossed.sum(1).mean()
-
+		pass
 	def backward(self, grad):
-		return grad * (self._softed - self._t)
+		pass
 
-class crossent(Loss):
-	def _cal_loss(self, x):
-		self._x = x
-		crossed = - np.multiply(self._t, np.log(x))
-		self._loss = crossed.sum(1).mean()
+class conv(module):
+	def _setup(self, ksize, stride, kernel):
+	"""
+	Args:
+		pad = ((ph1, ph2), (pw1, pw2))
+		ksize = (kh, kw)
+		stride = (sh, sw)
+	"""
 
-	def backward(self, grad):
-		p = - np.divide(self._t, self._x + 1e-20)
-		return grad * p
-
-class l2(Loss):
-	def _cal_loss(self, x):
-		self._diff = x - self._t
-		self._loss = np.pow(self._diff, 2)
-
-	def backward(self, grad):
-		return grad * self._d
-
-"""
-Module Class Factory
-"""
-
-_module_class_factory = dict({
-	'reshape': reshape,
-	'sigmoid': sigmoid,
-	'softmax': softmax,
-	'drop': drop,
-	'linear': linear,
-	'relu': relu,
-	'bias': add_biases,
-	'dot': matmul,
-	'crossent': crossent,
-	'softmax_crossent': softmax_crossent,
-	'l2': l2,
-})
-
-def module_class_factory(name):
-	assert name in _module_class_factory, \
-	'Module {} not implemented'.format(name)
-	return _module_class_factory[name]

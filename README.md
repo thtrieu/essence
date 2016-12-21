@@ -1,11 +1,8 @@
-* #table of content
-{:toc}
-
 *What I cannot create, I do not understand - Richard Feynman*
 
 ### Numpyflow
 
-Is an on-going project that builds deep feed-forward computational graph completely in `numpy`. Delegating as much computation as possible to `numpy` built-in routines to gain a little more spare time.
+Is an on-going project that builds deep feed-forward computational graph completely in `numpy` (to be upgrade to DAG). Delegating as much computation as possible to `numpy` built-in routines to optimize for speed. It is supposed to be run entirely on CPU.
 
 Goal: finish building CNN, batch normalization, LSTM, GRU, NTM and train at least one model using each of these modules.
 
