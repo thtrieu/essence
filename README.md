@@ -8,7 +8,7 @@ Goal: finish building CNN, batch normalization, LSTM, GRU, NTM and train at leas
 
 ### Test 1: speed against `tensorflow`
 
-(Unfair comparision ahead)
+(Unfair comparison ahead)
 
 ```python
 batch = 128
@@ -27,7 +27,6 @@ b2 = np.random.normal(scale = scale, size = out_dim)
 feed = np.random.uniform(-1, 1, size = (batch, inp_dim))
 target = np.random.randn(batch, out_dim)
 target = np.equal(target, target.max(1, keepdims = True))
-target = target.astype(np.float64)
 ```
 
 `Tensorflow`'s code:
