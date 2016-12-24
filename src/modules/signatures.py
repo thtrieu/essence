@@ -46,6 +46,7 @@ class conv(Module):
         return grad_kernel
 
     def backward(self, grad):
+        grad = grad.astype(np.float32)
         self._kernel.set_grad(
             self._cal_kernel_grad, self._x, grad)
             

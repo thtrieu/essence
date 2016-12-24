@@ -1,4 +1,4 @@
-from src.network import Network
+from src.network import ChainNet
 from src.utils import randn, uniform, guass, read_mnist
 import numpy as np
 import time
@@ -11,7 +11,7 @@ b1 = guass(0., std, hid_dim)
 w2 = guass(0., std, (hid_dim, out_dim))
 b2 = guass(0., std, out_dim)
 
-mnist = Network()
+mnist = ChainNet()
 mnist.add('portal', (inp_dim,))
 mnist.add('dot', w1)
 mnist.add('bias', b1)

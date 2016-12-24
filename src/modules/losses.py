@@ -11,6 +11,10 @@ class Loss(Module):
     def set_target(self, target):
         self._t = target
         self._batch = target.shape[0]
+        Module._targeted = True
+
+    def release_target(self):
+        Module._targeted = False
 
     def forward(self, x):
         if self._t is not None:

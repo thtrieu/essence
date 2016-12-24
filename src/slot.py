@@ -45,10 +45,21 @@ class UniSlot(Slot):
     def __call__(self, *args, **kwargs):
         return self._dicts[self.name]
 
+class BatchnormSlot(Slot):
+    def _init_vars_and_hyper_pars(
+        self, trainable, gamma, mv_mean, mv_var, *args, **kwargs):
+        self._hyper_pars = (args, kwargs)
+        self._dicts = {
+            'gamma': Variable(gamma, 'gamma', trainable),
+            'mean': Variable(gamma, 'mean', False),
+            'var': Variable(gamma, 'var', False),
+        }
+
 _slot_class_factory = dict({
     'dot': UniSlot,
     'bias': UniSlot,
     'conv': UniSlot,
+    'batchnorm': BatchnormSlot
 })
 
 def slot_class_factory(name):

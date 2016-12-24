@@ -31,3 +31,6 @@ class Variable(object):
             if 0: #tuple(self._val) == (32,):
                 print '\n{}: {}\n'.format(self._name, self._val.shape)
                 print self._val
+    
+    def apply_update(self, apply_rule, *args):
+        self._val = apply_rule(self.val, *args)

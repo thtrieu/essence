@@ -20,6 +20,7 @@ _module_class_factory = dict({
 	'crossent': crossent,
 	'softmax_crossent': softmax_crossent,
 	'l2': l2,
+	'batchnorm': batch_norm
 })
 
 def module_class_factory(name):

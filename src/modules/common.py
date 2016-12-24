@@ -3,6 +3,45 @@ from src.utils import binomial
 from conv import c_xpool2, c_gradxp2
 import numpy as np
 
+class batch_norm(Module):
+    def _setup(self, momentum = .9):
+        self._gamma = self._var('gamma')
+        self._mv_mean = self._var('mean')
+        self._mv_var = self._var('var')
+        self._alpha = momentum
+
+        rank = len(self._inp_shape)
+        f_dims = np.arange(rank)
+        self._fd = tuple(f_dims)
+    
+    def _update_mv_ave(self, v, v_):
+        _alpha = 1. - self._alpha
+        return v * self._alpha + _alpha * v_
+
+    def forward(self, x):
+        if Module._targeted:
+            mean = x.mean(self._fd)
+            var = x.var(self._fd)
+            self._mv_mean.apply_update(
+                self._update_mv_ave, mean)
+            self._mv_var.apply_update(
+                self._update_mv_ave, var)
+        else:
+            mean = self._mv_mean
+            var  = self._mv_var
+
+        self._rstd = 1./ np.sqrt(var + 1e-8)
+        self._normed = (x - mean) * self._rstd
+        return self._normed * self._gamma.val
+    
+    def backward(self, grad):
+        N = np.prod(grad.shape[:-1])
+        tmp = np.multiply(grad, self._normed).sum(self._fd)
+        self._gamma.set_grad(tmp.sum)
+        tmp = self._normed * tmp * self._gamma.val
+        return self._rstd * (grad - tmp * 1. / N)
+
+
 class reshape(Module):
     def _setup(self, new_shape):
         self._out_shape = (new_shape)

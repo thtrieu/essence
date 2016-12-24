@@ -1,4 +1,4 @@
-from src.network import Network
+from src.network import ChainNet
 from src.utils import randn, uniform, guass, read_mnist
 import numpy as np
 import time
@@ -25,9 +25,12 @@ b4 = guass(0., std, (10,))
 # w4 = .35 * np.ones((1024, 10))
 # b4 = -.4 * np.ones((10,))
 
-mnist = Network()
+
+mnist = ChainNet()
 mnist.add('portal', inp_shape)
 mnist.add('conv', k1, pad = (2,2), stride = (1,1))
+mnist.add('batchnorm', gamma = guass(0., std, ()),
+	mv_mean = np.zeros((32,)), mv_var = np.zeros((32,)))
 mnist.add('bias', b1)
 mnist.add('relu')
 mnist.add('maxpool2')

@@ -3,7 +3,7 @@ from graph import Chain
 from modules import module_class_factory
 import time
 
-class Network(object):
+class ChainNet(object):
     def __init__(self):
         self._server = ParameterServer()
         self._chain = Chain()
@@ -27,6 +27,9 @@ class Network(object):
     def _forward(self, feed_in, target):
         if target is not None:
             self._chain.leaf.set_target(target)
+        else:
+            self._chain.leaf.release_target()
+            
         self._outlet = feed_in
         for module in self._chain.forth_traverse():
             self._outlet = module.forward(self._outlet)
