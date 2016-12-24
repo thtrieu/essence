@@ -1,8 +1,8 @@
 from conv import c_conv2d, c_gradk, c_gradx
-from module import Module
+from module import Module, ChainModule
 import numpy as np
 
-class matmul(Module):    
+class matmul(ChainModule):    
     def _setup(self, *args, **kwargs):
         self._w = self._var()
         self._out_shape = (self._w.val.shape[1],)
@@ -20,7 +20,7 @@ class matmul(Module):
             matmul._cal_w_grad, self._x, grad)
         return grad.dot(self._w.val.transpose())
 
-class conv(Module):
+class conv(ChainModule):
     def _setup(self, pad, stride):
         ph, pw = pad; sh, sw = stride
         self._kernel = self._var()
@@ -34,8 +34,8 @@ class conv(Module):
         self._out_shape = [h_, w_, f_]
 
     def forward(self, x):
-        self._x = x
-        conved = conv.zeros32(self.out_shape)
+        self._x = x; n = x.shape[0]
+        conved = conv.zeros32(self.out_shape(n))
         c_conv2d(x, self._kernel.val, 
             conved, *self._args)
         return conved
@@ -49,8 +49,9 @@ class conv(Module):
         grad = grad.astype(np.float32)
         self._kernel.set_grad(
             self._cal_kernel_grad, self._x, grad)
-            
-        grad_volume = conv.zeros32(self.inp_shape)
+        
+        n = grad.shape[0]
+        grad_volume = conv.zeros32(self.inp_shape(n))
         c_gradx(
             grad_volume, self._kernel.val, grad, *self._args)
         return grad_volume

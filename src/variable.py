@@ -20,17 +20,11 @@ class Variable(object):
     def set_grad(self, chain_rule, *args):
         if self._trainable:
             self._grad = chain_rule(*args)
-            if 0:# tuple(self._grad.shape) == (32,):
-                print '\n{}: {}\n'.format(self._name, self._grad.shape)
-                print self._grad#[:,:,1,2]
-                #exit()
     
     def apply_grad(self, apply_rule):
-        if self._trainable:
+        if self._trainable and self._grad is not None:
             self._val = apply_rule(self.val, self.grad)
-            if 0: #tuple(self._val) == (32,):
-                print '\n{}: {}\n'.format(self._name, self._val.shape)
-                print self._val
+            self._grad = None
     
     def apply_update(self, apply_rule, *args):
         self._val = apply_rule(self.val, *args)

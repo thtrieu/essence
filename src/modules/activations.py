@@ -1,16 +1,14 @@
 import numpy as np
-from module import Module
+from module import Module, ChainModule
 
-class Activate(Module):
-	"""
-	Modules whose output participates backprop
-	"""
+class Activate(ChainModule):
 	def _setup(self, *args, **kwargs):
 		self.activation = None
 
 	def forward(self, x):
 		self.transform(x)
 		return self.activation
+
 
 class sigmoid(Activate):
 	def transform(self, x):
@@ -21,12 +19,14 @@ class sigmoid(Activate):
 		p = np.multiply(a, 1. - a)
 		return np.multiply(grad, p)
 
+
 class linear(Activate):
 	def transform(self, x):
 		self.activation = x
 
 	def backward(self, grad):
 		return grad
+
 
 class relu(Activate):
 	def transform(self, x):
@@ -35,6 +35,7 @@ class relu(Activate):
 	def backward(self, grad):
 		p = self.activation > 0.
 		return np.multiply(grad, p)
+
 
 class softmax(Activate):
 	def transform(self, x):

@@ -1,16 +1,16 @@
-from module import Module
+from module import Module, ChainModule
 from src.utils import binomial
 from conv import c_xpool2, c_gradxp2
 import numpy as np
 
 class batch_norm(Module):
-    def _setup(self, momentum = .9):
+    def _prepare(self, inp_shape, is_training_shape, momentum = .9):
+        self._out_shape = inp_shape[1:]
         self._gamma = self._var('gamma')
         self._mv_mean = self._var('mean')
         self._mv_var = self._var('var')
         self._alpha = momentum
-
-        rank = len(self._inp_shape)
+        rank = len(inp_shape)-1
         f_dims = np.arange(rank)
         self._fd = tuple(f_dims)
     
@@ -18,8 +18,8 @@ class batch_norm(Module):
         _alpha = 1. - self._alpha
         return v * self._alpha + _alpha * v_
 
-    def forward(self, x):
-        if Module._targeted:
+    def forward(self, x, is_training):
+        if is_training:
             mean = x.mean(self._fd)
             var = x.var(self._fd)
             self._mv_mean.apply_update(
@@ -30,7 +30,7 @@ class batch_norm(Module):
             mean = self._mv_mean
             var  = self._mv_var
 
-        self._rstd = 1./ np.sqrt(var + 1e-8)
+        self._rstd = 1. / np.sqrt(var + 1e-8)
         self._normed = (x - mean) * self._rstd
         return self._normed * self._gamma.val
     
@@ -41,18 +41,19 @@ class batch_norm(Module):
         tmp = self._normed * tmp * self._gamma.val
         return self._rstd * (grad - tmp * 1. / N)
 
-
-class reshape(Module):
+class reshape(ChainModule):
     def _setup(self, new_shape):
         self._out_shape = (new_shape)
 
     def forward(self, x):
-        return x.reshape(self.out_shape)
+        return x.reshape(
+            self.out_shape(x.shape[0]))
     
     def backward(self, grad):
-        return grad.reshape(self.inp_shape)		
+        return grad.reshape(
+            self.inp_shape(grad.shape[0]))		
 
-class add_biases(Module):
+class add_biases(ChainModule):
     def _setup(self, *args, **kwargs):
         self._b = self._var()
         rank = len(self._inp_shape)
@@ -66,7 +67,7 @@ class add_biases(Module):
         self._b.set_grad(grad.sum, self._range)
         return grad
         
-class drop(Module):
+class drop(ChainModule):
     def _setup(self, keep_prob = .5):
         self.keep = keep_prob
 
@@ -79,10 +80,7 @@ class drop(Module):
         grad_mask = grad / self.keep
         return grad_mask * self.r
 
-class pool(Module):
-    pass
-
-class maxpool2x2(pool):
+class maxpool2x2(ChainModule):
     def _setup(self):
         h, w, f = self._inp_shape
         assert not h%2 and not w%2, \
@@ -90,17 +88,19 @@ class maxpool2x2(pool):
         self._out_shape = [h/2, w/2, f]
 
     def forward(self, x):
-        pooled = np.zeros(self.out_shape, dtype = np.float32)
-        self._mark = np.zeros(self.out_shape, dtype = np.int32)
+        n = x.shape[0]
+        pooled = np.zeros(self.out_shape(n), dtype = np.float32)
+        self._mark = np.zeros(self.out_shape(n), dtype = np.int32)
         c_xpool2(x, self._mark, pooled, *self._inp_shape)
         return pooled
 
     def backward(self, grad):
-        unpooled = np.zeros(self.inp_shape, dtype = np.float32)
+        n = grad.shape[0]
+        unpooled = np.zeros(self.inp_shape(n), dtype = np.float32)
         c_gradxp2(unpooled, self._mark, grad, *self._inp_shape)
         return unpooled
 
-class pad(Module):    
+class pad(ChainModule):    
     def _setup(self, pad):
         self._pad = pad
         self._h0 = h0 = pad[0][0]

@@ -1,25 +1,17 @@
 import numpy as np
-from module import Module
+from module import Module, ChainModule
 
 class Loss(Module):
-    def _setup(self, *args, **kwargs):
-        self._t = None 
+    def _prepare(self, 
+        pred_shape, truth_shape,
+        *args, **kwargs):
+        self._t = None
         self._loss = None
         self._out_shape = ()
-        Module._set_batch(1)
 
-    def set_target(self, target):
-        self._t = target
-        self._batch = target.shape[0]
-        Module._targeted = True
-
-    def release_target(self):
-        Module._targeted = False
-
-    def forward(self, x):
-        if self._t is not None:
-            self._cal_loss(x)
-        return x
+    def forward(self, x, truth):
+        self._t = truth
+        return self._cal_loss(x)
 
     @property
     def loss(self):
@@ -31,10 +23,10 @@ class softmax_crossent(Loss):
         sum_e_x = np.exp(x).sum(1, keepdims = True)
         self._log_soft = x - np.log(sum_e_x)
         crossed = - np.multiply(self._t, self._log_soft)
-        self._loss = crossed.sum(1).mean()
+        return crossed.sum(1).mean()
 
     def backward(self, grad):
-        scalar = 1./self._batch * grad
+        scalar = 1. / self._t.shape[0] * grad
         return scalar * (np.exp(self._log_soft) - self._t)
 
 class crossent(Loss):
