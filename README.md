@@ -8,7 +8,7 @@ Current running modules: matmul, dropout, relu, conv, maxpool2, batchnorm.
 
 TODO: build LSTM, GRU, NTM and train at least one model using each of these modules.
 
-### Test 1: MNIST with depth-2 MLP, relu, dropout
+### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
 
  `numpyflow` code:
 
@@ -30,7 +30,7 @@ print time.time() - s
 
 This code presents in `mnist.py` achieves 95.3% accuracy.
 
-### Test 2: LeNet on MNIST with batch normalization
+### Test 2: LeNet on MNIST with batch normalization & train with ADAM
 
 [Writting]
 
