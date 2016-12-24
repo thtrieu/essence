@@ -1,8 +1,14 @@
-from module import *
+from module import portal
 from activations import *
 from losses import *
+from signatures import *
+from common import *
 
 _module_class_factory = dict({
+	'portal': portal,
+	'conv': conv,
+	'maxpool2': maxpool2x2,
+	'pad': pad,
 	'reshape': reshape,
 	'sigmoid': sigmoid,
 	'softmax': softmax,
