@@ -2,11 +2,11 @@
 
 ### Numpyflow
 
-Is an on-going project that builds deep feed-forward computational graph completely in `numpy` (to be upgrade to DAG). Delegating as much computation as possible to `numpy` built-in routines to optimize for speed. It is supposed to be run entirely on CPU.
+Is an on-going project that builds auto-differentiable, directed-acyclic computational-graph using `numpy`, with occasional falls back to `C` whenever perfomance is demanded. Currenly it supports CPU only.
 
-Current running modules: matmul, dropout, relu, conv, maxpool2, batchnorm.
+Current working modules: matmul, dropout, relu, conv, maxpool2, batchnorm.
 
-TODO: build LSTM, GRU, NTM and train at least one model using each of these modules.
+TODO: build LSTM, GRU, NTM.
 
 ### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
 
