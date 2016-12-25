@@ -2,11 +2,11 @@
 
 ### Numpyflow
 
-Is an on-going project that builds auto-differentiable, directed-acyclic computational-graph using `numpy`, with occasional falls back to `C` whenever perfomance is demanded. Currenly it supports CPU only.
+Is an on-going project that builds auto-differentiable, directed-acyclic computational-graph using `numpy`, with occasional falls back to `C` whenever perfomance is demanded. The interface is inspired by `Tensorflow`. Currenly the project supports CPU only.
 
-Current working modules: matmul, dropout, relu, conv, maxpool2, batchnorm.
+Current working layers: fully connected, convolution, dropout, batch normalization. 
 
-TODO: build LSTM, GRU, NTM.
+TODO: recurrent models: LSTM, GRU, possibly augmented memory RNN such as NTM.
 
 ### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
 
