@@ -6,7 +6,6 @@ Is an on-going project that builds deep feed-forward computational graph complet
 
 Current running modules: matmul, dropout, relu, conv, maxpool2, batchnorm.
 
-TODO: build a syntactic sugar coat for `net.x()`
 TODO: build LSTM, GRU, NTM and train at least one model using each of these modules.
 
 ### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
@@ -32,6 +31,8 @@ net.optimize(loss, 'sgd', lr)
 This achieves 95.3% accuracy.
 
 ### Test 2: LeNet on MNIST with batch normalization & ADAM optimizer
+
+Sample from `lenet-bn.py`
 
 ```python
 net = Net()
@@ -63,6 +64,7 @@ fc2 = net.plus_b(net.matmul(fc1, w4), b4)
 loss = net.softmax_crossent(fc2, label)
 net.optimize(loss, 'adam', 1e-3)
 ```
+
 This achieves 96.7% test accuracy.
 
 ### License
