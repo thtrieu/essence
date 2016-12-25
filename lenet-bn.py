@@ -18,56 +18,57 @@ b4 = guass(0., std, (10,))
 
 
 net = Net()
-p = net.x('portal', inp_shape)
-x = net.x('conv', p, k1, (2,2), (1,1))
+image = net.portal((28, 28, 1))
+label = net.portal((10, ))
+is_training = net.portal()
 
-is_training = net.x('portal', (1,))
-x = net.x('batchnorm', x, is_training, guass(0., std, ()),
-    np.zeros((32,)), np.zeros((32,)))
+conv1 = net.conv2d(image, k1, pad = (2,2), stride = (1,1))
+conv1 = net.batch_norm(
+    conv1, is_training, 
+    gamma = guass(0., std, ()), 
+    moving_mean = np.zeros((32,)), 
+    moving_var = np.zeros((32,))
+)
+conv1 = net.plus_b(conv1, b1)
+conv1 = net.relu(conv1)
+pool1 = net.maxpool2(conv1)
 
-x = net.x('bias', x, b1)
-x = net.x('relu', x)
-x = net.x('maxpool2', x)
-x = net.x('conv', x, k2, (2,2), (1,1))
-x = net.x('bias', x, b2)
-x = net.x('relu', x)
-x = net.x('maxpool2', x)
-x = net.x('reshape', x, (7 * 7 * 64,))
-x = net.x('dot', x, w3)
-x = net.x('bias', x, b3)
-x = net.x('relu', x)
-# = net.x('drop', .75)
-x = net.x('dot', x, w4)
-x = net.x('bias', x, b4)
-y = net.x('portal', (10, ))
-loss = net.x('softmax_crossent', x, y)
+conv2 = net.conv2d(pool1, k2, (2,2), (1,1))
+conv2 = net.plus_b(conv2, b2)
+conv2 = net.relu(conv2)
+pool2 = net.maxpool2(conv2)
+
+flat = net.reshape(pool2, (7 * 7 * 64,))
+fc1 = net.plus_b(net.matmul(flat, w3), b3)
+fc1 = net.relu(fc1)
+
+fc2 = net.plus_b(net.matmul(fc1, w4), b4)
+loss = net.softmax_crossent(fc2, label)
 net.optimize(loss, 'adam', 1e-3)
-# mnist.set_saver('mnist', batch * 10)
 
 mnist_data = read_mnist()
 
-def _accuracy():
-    b = net.forward([bias], {x : mnist_data.test.images.reshape((-1,28,28,1))})[0]
-    true_labels = mnist_data.test.labels.argmax(1)
-    pred_labels = b.argmax(1)
-    accuracy = np.equal(true_labels, pred_labels).mean()
-    print 'Trained, accuracy', accuracy
-
 batch = 128
-s = time.time()
 for count in range(5):
     batch_num = int(mnist_data.train.num_examples/batch)
     for i in range(batch_num):
         feed, target = mnist_data.train.next_batch(batch)
         feed = feed.reshape(batch, 28, 28, 1).astype(np.float32)
         target = target.astype(np.float32)
-        loss = net.train({p: feed, y: target, is_training: True})
 
-        x_ = net.forward([x], {p:feed, is_training: True})[0]
-        true_labels = target.argmax(1)
-        pred_labels = x_.argmax(1)
-        accuracy = np.equal(true_labels, pred_labels).mean()
-        print 'Step {} Loss {} Acc {}'.format(
-            i+1 + count*batch_num, loss, accuracy)
-        
-print time.time() - s
+        cost = net.train({
+            image: feed, 
+            label: target, 
+            is_training: True})
+
+        print 'Step {} Loss {}'.format(
+            i+1 + count*batch_num, cost)
+
+
+predict = net.forward([fc2], {
+    x : mnist_data.test.images.reshape((-1,28,28,1))
+    })[0]
+true_labels = mnist_data.test.labels.argmax(1)
+pred_labels = predict.argmax(1)
+accuracy = np.equal(true_labels, pred_labels).mean()
+print 'Accuracy on test set:', accuracy

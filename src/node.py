@@ -4,10 +4,10 @@ class Node(object):
         self._depend = list(dep)
         self._module = module
         self._feed = None
+        self._cache = None
         self._serve = dict()
         self._count = dict()
         self._grad_cache = 0
-        self._cache = None
         self._forward_id = None
     
     def set_feed(self, val):

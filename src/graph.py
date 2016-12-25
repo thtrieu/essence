@@ -41,8 +41,8 @@ class DAG(object):
     def forward(self, fetches, feed):
         assert type(fetches) is list,\
         'Fetches must be a list'
-        vals = list()
         forward_id = object()
+        vals = list()
         for ptr in feed:
             node = self._node_pool[ptr]
             node.set_feed(feed[ptr])

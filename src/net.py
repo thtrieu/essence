@@ -1,14 +1,19 @@
 from server import ParameterServer
 from graph import DAG
+import sugar
 
 class Net(object):
+    # Sugar syntax
     def __init__(self):
         self._server = ParameterServer()
         self._finalized = False
         self._dagraph = DAG()
+        coated = sugar.__dict__
+        for name, fun in coated.iteritems():
+            if callable(fun): setattr(Net, name, fun)
  
     # To be sugar coated
-    def x(self, name, *args):
+    def _x(self, name, *args):
         assert not self._finalized, \
         'Graph is finalized by setting an optimizer'
         return self._dagraph.register_for_slot(

@@ -67,17 +67,17 @@ class add_biases(ChainModule):
         self._b.set_grad(grad.sum, self._range)
         return grad
         
-class drop(ChainModule):
-    def _setup(self, keep_prob = .5):
-        self.keep = keep_prob
+class drop(Module):
+    def _prepare(self, shape, _):
+        self._out_shape = shape
 
-    def forward(self, x):
-        f = x.shape[-1]
-        self.r = binomial(1, self.keep, [1, f]).astype(np.float32)
-        return x * self.r / self.keep
+    def forward(self, x, keep_prob):
+        f = x.shape[-1]; self._keep = keep_prob
+        self.r = binomial(1, self._keep, [1, f]).astype(np.float32)
+        return x * self.r / self._keep
 
     def backward(self, grad):
-        grad_mask = grad / self.keep
+        grad_mask = grad / self._keep
         return grad_mask * self.r
 
 class maxpool2x2(ChainModule):

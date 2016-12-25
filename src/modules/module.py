@@ -24,8 +24,6 @@ class ChainModule(Module):
         self._setup(*args)
         if self._out_shape is None:
             self._out_shape = self._inp_shape
-        print '{:>20} -> {:<20}'.format(
-            shape[0], self.out_shape())
 
     def inp_shape(self, batch_size = None):
         return tuple([batch_size] + 
