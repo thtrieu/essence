@@ -19,10 +19,12 @@ b4 = guass(0., std, (10,))
 
 net = Net()
 p = net.x('portal', inp_shape)
-conv1 = net.x('conv', p, k1, (2,2), (1,1))
+x = net.x('conv', p, k1, (2,2), (1,1))
+
 is_training = net.x('portal', (1,))
 x = net.x('batchnorm', x, is_training, guass(0., std, ()),
     np.zeros((32,)), np.zeros((32,)))
+
 x = net.x('bias', x, b1)
 x = net.x('relu', x)
 x = net.x('maxpool2', x)
@@ -61,7 +63,7 @@ for count in range(5):
         target = target.astype(np.float32)
         loss = net.train({p: feed, y: target, is_training: True})
 
-        x_ = net.forward([x], {p:feed, is_training:True})[0]
+        x_ = net.forward([x], {p:feed, is_training: True})[0]
         true_labels = target.argmax(1)
         pred_labels = x_.argmax(1)
         accuracy = np.equal(true_labels, pred_labels).mean()

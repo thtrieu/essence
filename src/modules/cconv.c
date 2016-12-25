@@ -1,5 +1,18 @@
 
 void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
+    /*
+    Fill empty array with result from applying maxpool 2x2, stride 2 on v
+
+    Args:
+        v: pointer to the 4 dimensional input
+        m: pointer to the empty array that will contain max positions, same size to the result
+        o: pointer to the result array
+        n, h, w, f: batch size, height, width, feature_size respectively
+    
+    Returns:
+        None
+    */
+    
     int out_h = h/2;
     int out_w = w/2;
     float* v_ptr = v;
@@ -7,6 +20,10 @@ void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
     int* m_ptr = m;
     int v_size = h * w * f;
     int o_size = out_h * out_w * f;
+    // spatial distances
+    // step 1 = dist between v[i, a, b, j] <-> v[i, a, b+1, j]
+    // step 2 = dist between v[i, a, b, j] <-> v[i, a+1, b, j]
+    // step 3 = dist between v[i, a, b, j] <-> v[i, a+1, b+1, j]
     int step1 = f; int step2 = w*f; int step3 = w*f + f;
 
     int ni, hi, wi, fi;
@@ -44,6 +61,10 @@ void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
 }
 
 void xpool2_ov(float* v, int* m, float* o, int n, int h, int w, int f) {
+    /*
+    Given output's gradient `o` and max positions `m`,
+    Calculate input's gradient `v`
+    */
     int out_h = h/2;
     int out_w = w/2;
     float* v_ptr = v;
@@ -77,7 +98,20 @@ void conv_vko(float* v, float* k, float* o,
 	int n, int h, int w, int f, 
     int ph, int pw, int out_f, 
 	int kh, int kw, int sh, int sw) {
+    /*
+    Fill an empty array with the convolved result from an input array and a kernel
 
+    Args:
+        v: pointer to 4-d input array, size [n * h * w * f]
+        k: pointer to 4-d kernel array, size [kh * kw * f * out_f]
+        o: pointer to 4-d empty array, size [n * out_h * out_w * out_f]
+        n, h, w, f: batch size, height, width, feature_size
+
+        ph, pw: pad size on width and height
+        out_f: output number of features
+        kh, kw, sh, sw: kernel size and stride size
+
+    */
     int out_h = (h + 2*ph - kh) / sh + 1;
     int out_w = (w + 2*pw - kw) / sw + 1;
     int colcol = kh * kw * f;
@@ -102,10 +136,12 @@ void conv_vko(float* v, float* k, float* o,
                 	v_hi = sho + kcoli/fkw % kh;
                 	v_wi = swo + kcoli/f % kw;
                     if ((v_hi < ph) | (v_wi < pw) | (v_hi >= h + ph) | (v_wi >= w + pw)) {
+                        // referring to zero region of the padded volume.
                         continue;
                     } 
                     fi = kcoli % f;
                     v_idx = fi + f*(v_wi - pw + w*(v_hi - ph));
+                    // Use many times, save to register
                     register float part = v_ptr[v_idx];
                     for (fo = 0; fo < out_f; ++fo) {
                         o_ptr[fo+off_o] += part * k[kcoli*out_f+fo];
@@ -122,7 +158,9 @@ void conv_vok(float* v, float* k, float* o,
 	int n, int h, int w, int f, 
     int ph, int pw, int out_f, 
 	int kh, int kw, int sh, int sw) {
-
+    /*
+    Given output's gradient `o` and input value `v`, fill in `k` gradient of the kernel
+    */
     int out_h = (h + 2*ph - kh) / sh + 1;
     int out_w = (w + 2*pw - kw) / sw + 1;
     int colcol = kh * kw * f;
@@ -166,6 +204,11 @@ void conv_kov(float* v, float* k, float* o,
 	int n, int h, int w, int f, 
     int ph, int pw, int out_f, 
 	int kh, int kw, int sh, int sw) {
+
+    /*
+    Given the output gradient `o` and the kernel value `k`,
+    calculate the gradient for input `v`
+    */
 
     int out_h = (h + 2*ph - kh) / sh + 1;
     int out_w = (w + 2*pw - kw) / sw + 1;

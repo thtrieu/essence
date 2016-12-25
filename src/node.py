@@ -33,7 +33,6 @@ class Node(object):
                 val = [self._feed]
                 self._feed = None
             self._cache = self._module.forward(*val)
-
         return self._cache
     
     def backward(self, grad, ptr):

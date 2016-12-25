@@ -7,9 +7,10 @@ A slot is defined to be a dict with pairs (key : value) being
 each module have a slot on the server.
 """
 
+from modules import conv, matmul, add_biases, batch_norm
+
 class Slot(object):
-    def __init__(self, module_name, *args, **kwargs):
-        self._name = module_name
+    def __init__(self, *args, **kwargs):
         trainable, kwargs = extract('trainable', True, **kwargs)
         self._init_vars_and_hyper_pars(trainable, *args, **kwargs)
 
@@ -17,17 +18,13 @@ class Slot(object):
         return self._dicts[var_name]
 
     def _init_vars_and_hyper_pars(
-            self, trainable, *args, **kwargs):
+            self, trainable, shapes, *args, **kwargs):
         self._hyper_pars = (args, kwargs)
         self._dicts = dict()
     
     @property
     def hyper_pars(self):
         return self._hyper_pars
-
-    @property
-    def name(self):
-        return self._name
     
     @property
     def var_names(self):
@@ -35,19 +32,19 @@ class Slot(object):
 
 class UniSlot(Slot):
     def _init_vars_and_hyper_pars(
-            self, trainable, val, *args, **kwargs):
+            self, trainable, shapes, val, *args, **kwargs):
         self._hyper_pars = (args, kwargs)
         self._dicts = {
-            self.name: Variable(
-                val, self.name, trainable)
+            'uni': Variable(
+                val, 'uni', trainable)
         }
 
     def __call__(self, *args, **kwargs):
-        return self._dicts[self.name]
+        return self._dicts['uni']
 
 class BatchnormSlot(Slot):
     def _init_vars_and_hyper_pars(
-        self, trainable, gamma, mv_mean, mv_var, *args, **kwargs):
+        self, trainable, shapes, gamma, mv_mean, mv_var, *args, **kwargs):
         self._hyper_pars = (args, kwargs)
         self._dicts = {
             'gamma': Variable(gamma, 'gamma', trainable),
@@ -55,12 +52,22 @@ class BatchnormSlot(Slot):
             'var': Variable(gamma, 'var', False),
         }
 
+class GRUSlot(Slot):
+    def _init_vars_and_hyper_pars(
+        self, trainable, shapes, hidden_size, *args, **kwargs):
+        self._hyper_pars = (args, kwargs)
+        self._dicts = {
+            'wr': Variable(None, 'wr', trainable),
+            'ur': Variable(None, 'ur', trainable),
+            'br': Variable(None)
+        }
+
 _slot_class_factory = dict({
-    'dot': UniSlot,
-    'bias': UniSlot,
-    'conv': UniSlot,
-    'batchnorm': BatchnormSlot
+    conv: UniSlot,
+    matmul: UniSlot,
+    add_biases: UniSlot,
+    batch_norm: BatchnormSlot
 })
 
-def slot_class_factory(name):
-    return _slot_class_factory.get(name, Slot)
+def slot_class_factory(module_type):
+    return _slot_class_factory.get(module_type, Slot)

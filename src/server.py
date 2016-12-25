@@ -11,9 +11,9 @@ class ParameterServer(object):
     def __init__(self):
         self._slots = list()
 
-    def issue_slot(self, name, *args, **kwargs):
-        slot_class = slot_class_factory(name)
-        slot = slot_class(name, *args, **kwargs)
+    def issue_slot(self, module_type, *args, **kwargs):
+        slot_class = slot_class_factory(module_type)
+        slot = slot_class(*args, **kwargs)
         self._slots.append(slot)
         return slot
     
