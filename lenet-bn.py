@@ -56,13 +56,17 @@ for count in range(5):
         feed = feed.reshape(batch, 28, 28, 1).astype(np.float32)
         target = target.astype(np.float32)
 
-        cost = net.train({
+        pred, cost = net.train([fc2], {
             image: feed, 
             label: target, 
             is_training: True})
 
-        print 'Step {} Loss {}'.format(
-            i+1 + count*batch_num, cost)
+        predict = pred.argmax(1)
+        truth = target.argmax(1)
+        accuracy = np.equal(predict, truth).mean()
+
+        print 'Step {} Loss {} Accuracy {}'.format(
+            i+1 + count*batch_num, cost, accuracy)
 
 
 predict = net.forward([fc2], {

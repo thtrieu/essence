@@ -41,7 +41,8 @@ class batch_norm(Module):
         self._gamma.set_grad(tmp.sum) # gradient for gamma
         x_ = grad - self._normed * tmp * 1. / N
         x_ = self._rstd * self._gamma.val * x_
-        return x_.mean(self._fd)/x_.std(self._fd)
+        mean, var = x_.mean(self._fd), x_.var(self._fd)
+        return (x_ - mean) / np.sqrt(var + 1e-8)
 
 class reshape(ChainModule):
     def _setup(self, new_shape):

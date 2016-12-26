@@ -34,9 +34,9 @@ class DAG(object):
         self._node_pool[new_ptr] = Node(module, *dep_nodes)
         return new_ptr   
     
-    def forward_to_leaf(self, feed):
-        fetch = [self._leaf]
-        return self.forward(fetch, feed)[0]
+    def forward_to_leaf(self, fetches, feed):
+        fetch = fetches + [self._leaf]
+        return self.forward(fetch, feed)
     
     def forward(self, fetches, feed):
         assert type(fetches) is list,\
