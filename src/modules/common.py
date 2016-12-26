@@ -27,8 +27,8 @@ class batch_norm(Module):
             self._mv_var.apply_update(
                 self._update_mv_ave, var)
         else:
-            mean = self._mv_mean
-            var  = self._mv_var
+            mean = self._mv_mean.val
+            var  = self._mv_var.val
 
         self._rstd = 1. / np.sqrt(var + 1e-8)
         self._normed = (x - mean) * self._rstd
