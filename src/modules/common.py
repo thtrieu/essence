@@ -4,7 +4,7 @@ from conv import c_xpool2, c_gradxp2
 import numpy as np
 
 class batch_norm(Module):
-    def _prepare(self, inp_shape, is_training_shape, momentum = .9):
+    def _prepare(self, inp_shape, _, momentum = .9):
         self._out_shape = inp_shape[1:]
         self._gamma = self._var('gamma')
         self._mv_mean = self._var('mean')
@@ -36,10 +36,12 @@ class batch_norm(Module):
     
     def backward(self, grad):
         N = np.prod(grad.shape[:-1])
+
         tmp = np.multiply(grad, self._normed).sum(self._fd)
-        self._gamma.set_grad(tmp.sum)
-        tmp = self._normed * tmp * self._gamma.val
-        return self._rstd * (grad - tmp * 1. / N)
+        self._gamma.set_grad(tmp.sum) # gradient for gamma
+        x_ = grad - self._normed * tmp * 1. / N
+        x_ = self._rstd * self._gamma.val * x_
+        return x_.mean(self._fd)/x_.std(self._fd)
 
 class reshape(ChainModule):
     def _setup(self, new_shape):
