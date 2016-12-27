@@ -1,5 +1,6 @@
 from variable import Variable
 from utils import extract
+import numpy as np
 
 """
 A slot is defined to be a dict with pairs (key : value) being 
@@ -52,14 +53,45 @@ class BatchnormSlot(Slot):
             'var': Variable(gamma, 'var', False),
         }
 
-class GRUSlot(Slot):
+class LSTMSlot(Slot):
     def _init_vars_and_hyper_pars(
         self, trainable, shapes, hidden_size, *args, **kwargs):
+        # TODO: let the module init vars itself.
+        args = [hidden_size] + list(args)
         self._hyper_pars = (args, kwargs)
+
+        _, input_size, time_step = shapes[0]
+        h, i = hidden_size, input_size
+        w_shape = (h, h); i_shape = (i, h)
+        xavierw = -np.sqrt(6.)/(np.sqrt(2*h))
+        xavieru = -np.sqrt(6.)/(np.sqrt(h+i))
+        
+        wi = np.random.uniform(-xavierw, xavierw, w_shape)
+        wo = np.random.uniform(-xavierw, xavierw, w_shape)
+        wf = np.random.uniform(-xavierw, xavierw, w_shape)
+        w  = np.random.uniform(-xavierw, xavierw, w_shape)
+        ui = np.random.uniform(-xavieru, xavieru, i_shape)
+        uo = np.random.uniform(-xavieru, xavieru, i_shape)
+        uf = np.random.uniform(-xavieru, xavieru, i_shape)
+        u  = np.random.uniform(-xavieru, xavieru, i_shape)
+        bi = np.random.zeros(h)
+        bo = np.random.zeros(h)
+        bf = np.random.zeros(h)
+        b = np.random.zeros(h)
+
         self._dicts = {
-            'wr': Variable(None, 'wr', trainable),
-            'ur': Variable(None, 'ur', trainable),
-            'br': Variable(None)
+            'wi': Variable(wi, 'wi', trainable),
+            'wo': Variable(wo, 'wo', trainable),
+            'wf': Variable(wf, 'wf', trainable),
+            'w': Variable(w, 'w', trainable),
+            'ui': Variable(ui, 'ui', trainable),
+            'uo': Variable(uo, 'uo', trainable),
+            'uf': Variable(uf, 'uf', trainable),
+            'u': Variable(u, 'u', trainable),
+            'bi': Variable(bi, 'bi', trainable),
+            'bo': Variable(bo, 'bo', trainable),
+            'bf': Variable(bf, 'bf', trainable),
+            'b': Variable(b, 'b', trainable)
         }
 
 _slot_class_factory = dict({

@@ -8,13 +8,13 @@ std = 1.; lr = 1e-3
 inp_shape = (inp_dim, inp_dim, 1)
 
 k1 = guass(0., std, (5, 5, 1, 32))
-b1 = guass(0., std, (32,))
+b1 = np.ones((32,)) * .1
 k2 = guass(0., std, (5, 5, 32, 64))
-b2 = guass(0., std, (64,))
+b2 = np.ones((64,)) * .1
 w3 = guass(0., std, (7 * 7 * 64, 1024))
-b3 = guass(0., std, (1024,))
+b3 = np.ones((1024,)) * .1
 w4 = guass(0., std, (1024, 10))
-b4 = guass(0., std, (10,))
+b4 = np.ones((10,)) * .1
 
 
 net = Net()
