@@ -70,7 +70,8 @@ for count in range(5):
 
 
 predict = net.forward([fc2], {
-    x : mnist_data.test.images.reshape((-1,28,28,1))
+    image : mnist_data.test.images.reshape((-1,28,28,1)),
+    is_training: False
     })[0]
 true_labels = mnist_data.test.labels.argmax(1)
 pred_labels = predict.argmax(1)
