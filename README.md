@@ -65,7 +65,7 @@ loss = net.softmax_crossent(fc2, label)
 net.optimize(loss, 'adam', 1e-3)
 ```
 
-This achieves 96.7% test accuracy.
+This achieves 96.83% test accuracy.
 
 ### License
 GPL 3.0 (see License in this repo)
