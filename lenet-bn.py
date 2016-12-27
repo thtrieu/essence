@@ -26,8 +26,8 @@ conv1 = net.conv2d(image, k1, pad = (2,2), stride = (1,1))
 conv1 = net.batch_norm(
     conv1, is_training, 
     gamma = guass(0., std, ()), 
-    moving_mean = np.zeros((32,)), 
-    moving_var = np.zeros((32,))
+    moving_mean = None, 
+    moving_var = None
 )
 conv1 = net.plus_b(conv1, b1)
 conv1 = net.relu(conv1)

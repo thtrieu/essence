@@ -13,12 +13,12 @@ class matmul(ChainModule):
     
     @classmethod
     def _cal_w_grad(cls, x, g):
-        return x.transpose().dot(g)
+        return x.T.dot(g)
 
     def backward(self, grad):
         self._var().set_grad( 
             matmul._cal_w_grad, self._x, grad)
-        return grad.dot(self._w.val.transpose())
+        return grad.dot(self._w.val.T)
 
 class conv(ChainModule):
     def _setup(self, pad, stride):

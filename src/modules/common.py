@@ -16,6 +16,7 @@ class batch_norm(Module):
     
     def _update_mv_ave(self, v, v_):
         _alpha = 1. - self._alpha
+        if v is None: return v_
         return v * self._alpha + _alpha * v_
 
     def forward(self, x, is_training):

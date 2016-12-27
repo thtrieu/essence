@@ -1,11 +1,11 @@
 import numpy as np
 
 class Variable(object):
-    def __init__(self, val, name, trainable):
-        if val.dtype == np.float64:
-            val = val.astype(np.float32)
+    def __init__(self, val, trainable):
+        if val is not None:
+            if val.dtype == np.float64:
+                val = val.astype(np.float32)
         self._val = val
-        self._name = name
         self._grad = None
         self._trainable = trainable
 

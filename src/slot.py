@@ -36,8 +36,7 @@ class UniSlot(Slot):
             self, trainable, shapes, val, *args, **kwargs):
         self._hyper_pars = (args, kwargs)
         self._dicts = {
-            'uni': Variable(
-                val, 'uni', trainable)
+            'uni': Variable(val, trainable)
         }
 
     def __call__(self, *args, **kwargs):
@@ -48,50 +47,41 @@ class BatchnormSlot(Slot):
         self, trainable, shapes, gamma, mv_mean, mv_var, *args, **kwargs):
         self._hyper_pars = (args, kwargs)
         self._dicts = {
-            'gamma': Variable(gamma, 'gamma', trainable),
-            'mean': Variable(gamma, 'mean', False),
-            'var': Variable(gamma, 'var', False),
+            'gamma': Variable(gamma, trainable),
+            'mean': Variable(mv_mean, False),
+            'var': Variable(mv_var, False),
         }
 
 class LSTMSlot(Slot):
     def _init_vars_and_hyper_pars(
         self, trainable, shapes, hidden_size, *args, **kwargs):
-        # TODO: let the module init vars itself.
+
         args = [hidden_size] + list(args)
         self._hyper_pars = (args, kwargs)
 
         _, input_size, time_step = shapes[0]
         h, i = hidden_size, input_size
-        w_shape = (h, h); i_shape = (i, h)
-        xavierw = -np.sqrt(6.)/(np.sqrt(2*h))
-        xavieru = -np.sqrt(6.)/(np.sqrt(h+i))
+        w_shape = (h, h); i_shape = (i + h, h)
+        xavier = np.sqrt(6.)/(np.sqrt(i+2*h))
         
-        wi = np.random.uniform(-xavierw, xavierw, w_shape)
-        wo = np.random.uniform(-xavierw, xavierw, w_shape)
-        wf = np.random.uniform(-xavierw, xavierw, w_shape)
-        w  = np.random.uniform(-xavierw, xavierw, w_shape)
-        ui = np.random.uniform(-xavieru, xavieru, i_shape)
-        uo = np.random.uniform(-xavieru, xavieru, i_shape)
-        uf = np.random.uniform(-xavieru, xavieru, i_shape)
-        u  = np.random.uniform(-xavieru, xavieru, i_shape)
-        bi = np.random.zeros(h)
-        bo = np.random.zeros(h)
-        bf = np.random.zeros(h)
-        b = np.random.zeros(h)
+        wi = np.random.uniform(-xavier, xavier, w_shape)
+        wo = np.random.uniform(-xavier, xavier, w_shape)
+        wf = np.random.uniform(-xavier, xavier, w_shape)
+        w  = np.random.uniform(-xavier, xavier, w_shape)
+        bi = np.random.ones(h) * .1
+        bo = np.random.ones(h) * .1
+        bf = np.random.ones(h) * 1.5 # forget bias
+        b = np.random.ones(h) * .1 
 
         self._dicts = {
-            'wi': Variable(wi, 'wi', trainable),
-            'wo': Variable(wo, 'wo', trainable),
-            'wf': Variable(wf, 'wf', trainable),
-            'w': Variable(w, 'w', trainable),
-            'ui': Variable(ui, 'ui', trainable),
-            'uo': Variable(uo, 'uo', trainable),
-            'uf': Variable(uf, 'uf', trainable),
-            'u': Variable(u, 'u', trainable),
-            'bi': Variable(bi, 'bi', trainable),
-            'bo': Variable(bo, 'bo', trainable),
-            'bf': Variable(bf, 'bf', trainable),
-            'b': Variable(b, 'b', trainable)
+            'wi': Variable(wi, trainable),
+            'wo': Variable(wo, trainable),
+            'wf': Variable(wf, trainable),
+            'w': Variable(w, trainable),
+            'bi': Variable(bi, trainable),
+            'bo': Variable(bo, trainable),
+            'bf': Variable(bf, trainable),
+            'b': Variable(b, trainable)
         }
 
 _slot_class_factory = dict({
