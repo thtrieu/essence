@@ -17,21 +17,18 @@ class DAG(object):
 
         # Step 2, Get shapes from dependencies
         dep_nodes = list()
-        shape_list = list()
+        dep_shapes = list()
         for i in range(len(dep_list)):
             node = self._node_pool[dep_list[i]]
-            shape_list.append(node.out_shape())
+            dep_shapes.append(node.out_shape())
             dep_nodes.append(node)
-        if shape_list == list(): 
-            shape_list = [(0,)]
 
-        # Step 3, Create a module with given var & hyper
+        # Step 3, Create module, wrap by a node, add to pool
         module = module_class_factory(name)(
-            server, shape_list, *parameters)
-        
-        # Step 4, Add module to module pool
+            server, *(dep_shapes + parameters))
         new_ptr = ptr()
-        self._node_pool[new_ptr] = Node(module, *dep_nodes)
+        new_node = Node(module, *dep_nodes)
+        self._node_pool[new_ptr] = new_node
         return new_ptr   
     
     def forward_to_leaf(self, fetches, feed):

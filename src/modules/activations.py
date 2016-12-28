@@ -1,9 +1,10 @@
 import numpy as np
-from module import Module, ChainModule
+from module import Module
 
-class Activate(ChainModule):
-	def _setup(self, *args, **kwargs):
+class Activate(Module):
+	def __init__(self, _, inp_shape):
 		self.activation = None
+		self._out_shape = inp_shape
 
 	def forward(self, x):
 		self.transform(x)

@@ -1,5 +1,5 @@
-from slot import slot_class_factory
 from optimizer import optimizer_factory
+from slot import VariableSlot, MovingVariableSlot
 
 class ParameterServer(object):
     """
@@ -11,9 +11,13 @@ class ParameterServer(object):
     def __init__(self):
         self._slots = list()
 
-    def issue_slot(self, module_type, *args, **kwargs):
-        slot_class = slot_class_factory(module_type)
-        slot = slot_class(*args, **kwargs)
+    def issue_movingvar_slot(self, shape, momen):
+        slot = MovingVariableSlot(shape, momen)
+        self._slots.append(slot)
+        return slot
+
+    def issue_var_slot(self, val, trainable):
+        slot = VariableSlot(val, trainable)
         self._slots.append(slot)
         return slot
     

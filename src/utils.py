@@ -15,8 +15,13 @@ def extract(name, dfault, **kwargs):
         del kw[name]
     return val, kw
 
+def nxshape(volume, shape):
+    n = volume.shape[0]
+    return tuple([n] + list(shape))
+
 def parse_for(class_type, *args):
-    dep_args = list(); args = list(args)
+    dep_args = list(); 
+    args = list(args)
     idx = 0
     while idx < len(args):
         arg = args[idx]

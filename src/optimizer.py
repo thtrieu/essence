@@ -3,20 +3,17 @@ from utils import extract
 
 class Optimizer(object):
     def __init__(self, lr = 1e-3, *args, **kwargs):
-        minimize, kwargs = extract(
-            'minimize', True, **kwargs)
-        self._lr = lr * np.float64(minimize)
+        minimize, kwargs = extract('minimize', True, **kwargs)
+        self._lr = lr * (2. * np.float32(minimize) - 1.)
         self._construct(*args, **kwargs)
 
     def apply(self, var_slot):
-        for var_name in var_slot.var_names:
-            self._current = (var_slot, var_name)
-            var_slot(var_name).apply_grad(self._rule)
-            self._current = None
+        self._current = var_slot
+        var_slot.apply_grad(self._rule)
+        self._current = None
 
     def _construct(*args, **kwargs):
         pass
-        
 
 class StochasticDescentOptimizer(Optimizer):
     def _rule(self, v, g):
@@ -29,10 +26,10 @@ class AdamOptimizer(Optimizer):
         self._moments = dict()
     
     def _rule(self, v, g):
-        c = self._current; m = self._moments
+        c = self._current
+        m = self._moments
         if c not in m:
-            m[c] = dict({
-                's': 0, 'r': 0, 't': 0})
+            m[c] = dict({'s': 0, 'r': 0, 't': 0})
 
         s, r, t = m[c]['s'], m[c]['r'], m[c]['t']
         s = s * self._p1 + (1. - self._p1) * g

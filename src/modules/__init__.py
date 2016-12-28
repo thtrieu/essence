@@ -3,12 +3,12 @@ from activations import *
 from losses import *
 from signatures import *
 from common import *
+from variable import *
 
 _module_class_factory = dict({
 	'portal': portal,
 	'conv': conv,
 	'maxpool2': maxpool2x2,
-	'pad': pad,
 	'reshape': reshape,
 	'sigmoid': sigmoid,
 	'softmax': softmax,
@@ -20,7 +20,9 @@ _module_class_factory = dict({
 	'crossent': crossent,
 	'softmax_crossent': softmax_crossent,
 	'l2': l2,
-	'batchnorm': batch_norm
+	'batchnorm': batch_norm,
+	'variable': variable,
+	'constant': constant
 })
 
 def module_class_factory(name):

@@ -7,14 +7,6 @@ inp_dim = 28; out_dim = 10
 std = 1.; lr = 1e-3
 inp_shape = (inp_dim, inp_dim, 1)
 
-k1 = guass(0., std, (5, 5, 1, 32))
-b1 = np.ones((32,)) * .1
-k2 = guass(0., std, (5, 5, 32, 64))
-b2 = np.ones((64,)) * .1
-w3 = guass(0., std, (7 * 7 * 64, 1024))
-b3 = np.ones((1024,)) * .1
-w4 = guass(0., std, (1024, 10))
-b4 = np.ones((10,)) * .1
 
 
 net = Net()
@@ -22,13 +14,18 @@ image = net.portal((28, 28, 1))
 label = net.portal((10, ))
 is_training = net.portal()
 
+k1 = net.variable(guass(0., std, (5, 5, 1, 32)))
+b1 = net.variable(np.ones((32,)) * .1)
+k2 = net.variable(guass(0., std, (5, 5, 32, 64)))
+b2 = net.variable(np.ones((64,)) * .1)
+w3 = net.variable(guass(0., std, (7 * 7 * 64, 1024)))
+b3 = net.variable(np.ones((1024,)) * .1)
+w4 = net.variable(guass(0., std, (1024, 10)))
+b4 = net.variable(np.ones((10,)) * .1)
+
 conv1 = net.conv2d(image, k1, pad = (2,2), stride = (1,1))
 conv1 = net.batch_norm(
-    conv1, is_training, 
-    gamma = guass(0., std, ()), 
-    moving_mean = None, 
-    moving_var = None
-)
+    conv1, net.variable(guass(0., std, (32,))), is_training)
 conv1 = net.plus_b(conv1, b1)
 conv1 = net.relu(conv1)
 pool1 = net.maxpool2(conv1)
