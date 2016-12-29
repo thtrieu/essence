@@ -17,11 +17,11 @@ class lstm_uni(Module):
     class step(object):
         activate = dict({
             'f': _sigmoid, 'i': _sigmoid,
-            'o': _sigmoid, '_': np.tanh })
+            'o': _sigmoid, 'g': np.tanh })
 
         dactivate = dict({
             'f': _dsigmoid, 'i': _dsigmoid,
-            'o': _dsigmoid, '_': _dtanh })
+            'o': _dsigmoid, 'g': _dtanh })
 
         def __init__(self, p):
             self._p = p
@@ -45,10 +45,10 @@ class lstm_uni(Module):
 
         def forward(self, c, hx):
             self.c = c; self.hx = hx
-            for key in 'oif_': self._gate_forward(key)
+            for key in 'oifg': self._gate_forward(key)
             gates = self._gates
             c_new = gates['f'] * c 
-            c_new += gates['i'] * gates['_']
+            c_new += gates['i'] * gates['g']
             self._tanh = np.tanh(c_new)
             h_new = gates['o'] * self._tanh
             return c_new, h_new
@@ -60,9 +60,9 @@ class lstm_uni(Module):
             ghx = 0.
             # linear carousel:
             gc_ = g_tanh * (1. - tanh2) + gc
-            go, gi = gh * self._tanh, gc_ * gates['_']
+            go, gi = gh * self._tanh, gc_ * gates['g']
             gf, g_ = gc_ * self.c, gc_ * gates['i']
-            for pair in zip([go, gi, gf, g_], 'oif_'):
+            for pair in zip([go, gi, gf, g_], 'oifg'):
                 ghx += self._gate_backward(*pair)
             return gc_ * gates['f'], ghx
 
@@ -86,7 +86,7 @@ class lstm_uni(Module):
             'f': self._gate_var(server, w_shp, b_shp, forget_bias),
             'i': self._gate_var(server, w_shp, b_shp),
             'o': self._gate_var(server, w_shp, b_shp),
-            '_': self._gate_var(server, w_shp, b_shp) })
+            'g': self._gate_var(server, w_shp, b_shp) })
         self._out_shape = (hidden_size,)
         self._size = hidden_size
 

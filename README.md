@@ -18,6 +18,11 @@ image = net.portal((784,))
 keep_prob = net.portal()
 target = net.portal((10,))
 
+w1 = net.variable(guass(0., std, (inp_dim, hid_dim)))
+b1 = net.variable(np.ones(hid_dim) * .1)
+w2 = net.variable(guass(0., std, (hid_dim, out_dim)))
+b2 = net.variable(np.ones(out_dim) * .1)
+
 fc1 = net.matmul(image, w1)
 bias = net.plus_b(fc1, b1)
 relu = net.relu(bias)
@@ -40,13 +45,11 @@ image = net.portal((28, 28, 1))
 label = net.portal((10, ))
 is_training = net.portal()
 
+# ...
+
 conv1 = net.conv2d(image, k1, pad = (2,2), stride = (1,1))
 conv1 = net.batch_norm(
-    conv1, is_training, 
-    gamma = guass(0., std, ()), 
-    moving_mean = np.zeros((32,)), 
-    moving_var = np.zeros((32,))
-)
+    conv1, net.variable(guass(0., std, (32,))), is_training)
 conv1 = net.plus_b(conv1, b1)
 conv1 = net.relu(conv1)
 pool1 = net.maxpool2(conv1)
@@ -64,6 +67,7 @@ fc2 = net.plus_b(net.matmul(fc1, w4), b4)
 loss = net.softmax_crossent(fc2, label)
 net.optimize(loss, 'adam', 1e-3)
 ```
+
 This achieves 97% test accuracy.
 
 ### Test 3: LSTM on word embeddings for Vietnamese Question classification + Dropout + L2 weight regularize
@@ -79,8 +83,11 @@ def lstm_layer(net, embeddings, pos,
     out = net.lstm1(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
     return out
 
-# ...
+def fully_connected(inp, inp_size, out_size, dropout):
+    # ...
 
+lstmed = lstm_layer(embedding, 
+    one_hot_sentences, True, lens, 300)
 penultimate, regularizer1 = fully_connected(
     lstmed, 300, 128, dropout = True)
 penultimate = net.relu(penultimate)
