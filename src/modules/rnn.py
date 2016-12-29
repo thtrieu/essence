@@ -17,13 +17,11 @@ class lstm_uni(Module):
     class step(object):
         activate = dict({
             'f': _sigmoid, 'i': _sigmoid,
-            'o': _sigmoid, '_': np.tanh
-        })
+            'o': _sigmoid, '_': np.tanh })
 
         dactivate = dict({
             'f': _dsigmoid, 'i': _dsigmoid,
-            'o': _dsigmoid, '_': _dtanh
-        })
+            'o': _dsigmoid, '_': _dtanh })
 
         def __init__(self, p):
             self._p = p
@@ -68,8 +66,8 @@ class lstm_uni(Module):
                 ghx += self._gate_backward(*pair)
             return gc_ * gates['f'], ghx
 
-    def _gate_var(self, server, 
-            w_shape, b_shape, bias = None):
+    def _gate_var(self, server, w_shape, 
+                    b_shape, bias = None):
         w_init = xavier(w_shape)
         if bias is not None:
             b_init = np.ones(b_shape) * bias
@@ -79,12 +77,13 @@ class lstm_uni(Module):
         b_slot = server.issue_var_slot(b_init, True) 
         return w_slot, b_slot
 
-    def __init__(self, server, inp_shape, lens_shape, hidden_size):
+    def __init__(self, server, inp_shape, lens_shape, 
+                hidden_size, forget_bias):
         self._max_len, emb_dim = inp_shape
         w_shp = (hidden_size + emb_dim, hidden_size)
         b_shp = (hidden_size,)
         self._p = dict({
-            'f': self._gate_var(server, w_shp, b_shp, 1.5),
+            'f': self._gate_var(server, w_shp, b_shp, forget_bias),
             'i': self._gate_var(server, w_shp, b_shp),
             'o': self._gate_var(server, w_shp, b_shp),
             '_': self._gate_var(server, w_shp, b_shp) })

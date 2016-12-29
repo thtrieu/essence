@@ -3,6 +3,7 @@ from src.utils import randn, uniform, guass, read_mnist, accuracy
 import numpy as np
 from src.net import Net
 from src.utils import TRECvn
+import time
 
 def portals(net, max_len, nclass):
     x = net.portal((max_len,))
@@ -14,7 +15,7 @@ def portals(net, max_len, nclass):
 def lstm_layer(net, embeddings, pos, 
                 non_static, lens, hidden_size):
     w = net.lookup(embeddings, pos, trainable = non_static)
-    out = net.lstm1(w, lens, hidden_size = hidden_size)
+    out = net.lstm1(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
     return out
 
 def fully_connected(inp, inp_size, out_size, center, drop = None):
@@ -53,7 +54,7 @@ predict, regularizer2 = fully_connected(
 vanilla_loss = net.softmax_crossent(predict, y)
 regularized_loss = net.weighted_loss(
     (vanilla_loss, 1.0), (regularizer1, .2), (regularizer2, .2))
-net.optimize(regularized_loss, 'adam', 1e-4)
+net.optimize(regularized_loss, 'adam', 1e-3)
 
 # Helper functions
 def real_len(x_batch):
@@ -65,11 +66,15 @@ for sentences, label in dat.yield_batch(batch, epoch):
     pred, loss = net.train([predict], {
         x: sentences, y: label, keep: .75,
         lens: real_len(sentences), center : 0. })
-    count += 1
     acc = accuracy(pred, label)
-    x_test, y_test = dat.yield_test()
-    pred = net.forward([predict], {
-        x: x_test, keep: 1., lens: real_len(x_test) })[0]
-    acc2 = accuracy(pred, y_test)
-    print 'Step {}, Loss {}, Accuracy {}, Acc{}'.format(
-        count, loss, acc, acc2)
+    print('Step {}, Loss {}, Accuracy {}'.format(
+        count + 1, loss, acc))
+    count += 1
+
+
+x_test, y_test = dat.yield_test()
+pred = net.forward([predict], {
+    x: x_test, keep: 1., 
+    lens: real_len(x_test) })[0]
+acc = accuracy(pred, y_test)
+print('Accuracy on test set: {}'.format(acc))

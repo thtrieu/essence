@@ -17,8 +17,8 @@ def conv2d(self, x, kernel, pad = (0, 0), stride = (1, 1)):
 def maxpool2(self, x):
     return self._x('maxpool2', x)
 
-def lstm1(self, x, lens, hidden_size):
-    return self._x('lstm_uni', x, lens, hidden_size)
+def lstm1(self, x, lens, hidden_size, forget_bias = None):
+    return self._x('lstm_uni', x, lens, hidden_size, forget_bias)
 
 def matmul(self, x, w):
     return self._x('dot', x, w)

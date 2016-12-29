@@ -29,6 +29,7 @@ class ParameterServer(object):
     def apply_optimizer(self):
         for slot in self._slots:
             self._optimizer.apply(slot)
+        self._optimizer.finalize_step()
     
     def save(file_name):
         pass

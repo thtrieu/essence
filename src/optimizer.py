@@ -12,12 +12,18 @@ class Optimizer(object):
         var_slot.apply_grad(self._rule)
         self._current = None
 
-    def _construct(*args, **kwargs):
-        pass
+    def finalize_step(self): pass
+    def _construct(*args, **kwargs): pass
 
 class StochasticDescentOptimizer(Optimizer):
+    def _construct(self, decay = 1.):
+        self._decay = decay
+
     def _rule(self, v, g):
         return v - self._lr * g
+    
+    def finalize_step(self):
+        self._lr *= self._decay
 
 
 class AdamOptimizer(Optimizer):

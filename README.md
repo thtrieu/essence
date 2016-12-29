@@ -6,7 +6,7 @@ Is an on-going project that builds auto-differentiable, directed-acyclic computa
 
 Current working layers: fully connected, convolution, dropout, batch normalization. 
 
-TODO: recurrent models: LSTM, GRU, possibly augmented memory RNN such as NTM.
+TODO: Augmented memory RNN: namely a Neural Turing Machine (should be cool).
 
 ### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
 
@@ -64,8 +64,35 @@ fc2 = net.plus_b(net.matmul(fc1, w4), b4)
 loss = net.softmax_crossent(fc2, label)
 net.optimize(loss, 'adam', 1e-3)
 ```
+This achieves 97% test accuracy.
 
-This achieves 96.83% test accuracy.
+### Test 3: LSTM on word embeddings for Vietnamese Question classification + Dropout + L2 weight regularize
+
+Only one half of words in the dataset is covered by the embeddings. The many-to-one LSTM is designed to extract only the last relevant outputs for each sentence in batch (they have different lengths and are padded to be equal). After the recurrent is two fully-connected with dropout in between.
+
+A sample from `lstm-embed.py`, training is still in progress.
+
+```python
+def lstm_layer(net, embeddings, pos, 
+                non_static, lens, hidden_size):
+    w = net.lookup(embeddings, pos, trainable = non_static)
+    out = net.lstm1(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
+    return out
+
+# ...
+
+penultimate, regularizer1 = fully_connected(
+    lstmed, 300, 128, dropout = True)
+penultimate = net.relu(penultimate)
+predict, regularizer2 = fully_connected(
+    penultimate, 128, nclass)
+
+# Crossent loss combine with weight decay
+vanilla_loss = net.softmax_crossent(predict, y)
+regularized_loss = net.weighted_loss(
+    (vanilla_loss, 1.0), (regularizer1, .2), (regularizer2, .2))
+net.optimize(regularized_loss, 'adam', 1e-3)
+```
 
 ### License
 GPL 3.0 (see License in this repo)

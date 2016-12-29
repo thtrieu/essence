@@ -54,4 +54,4 @@ class l2(Loss):
         return np.power(self._diff, 2).mean()
 
     def _cal_grad(self, grad):
-        return grad * self._diff
+        return grad * 2 * self._diff

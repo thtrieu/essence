@@ -18,24 +18,31 @@ class VariableSlot(object):
     @property
     def grad(self):
         return self._grad
-    
+
     def set_grad(self, grad):
         if self._trainable:
             if self._grad is None:
                 self._grad = grad
-            elif type(grad) is tuple:
-                grad, pos = grad
-                self._grad = (self._grad[0] + grad, pos)
             else:
                 self._grad += grad
+    
+    def apply_embedding_grad(self, apply_rule):
+        grad, pos = self._grad
+        
+        emb_size = grad.shape[-1]
+        grad = grad.reshape(-1, emb_size)
+        pos = pos.flatten()
+        sum_over = pos[:, None] == pos
+        grad_sum = sum_over.dot(grad)
 
+        val_pos = self._val[pos]
+        new_val = apply_rule(val_pos, grad)
+        self._val[pos] = new_val
+        
     def apply_grad(self, apply_rule):
         if self._trainable and self._grad is not None:
-            if type(self._grad) is tuple: # embedding
-                grad, pos = self._grad
-                val_pos = self._val[pos]
-                new_val = apply_rule(val_pos, grad)
-                self._val[pos,:] = new_val
+            if type(self._grad) is tuple: 
+                self.apply_embedding_grad(apply_rule)
             else:
                 self._val = apply_rule(self.val, self.grad)
             self._grad = None
@@ -43,6 +50,7 @@ class VariableSlot(object):
 class MovingVariableSlot(VariableSlot):
     def __init__(self, shape, momentum):
         self._val = np.zeros(shape, dtype = np.float32)
+        self._trainable = False
         self._alpha = momentum
         self._grad = None
     
