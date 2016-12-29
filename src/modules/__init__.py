@@ -4,6 +4,7 @@ from losses import *
 from signatures import *
 from common import *
 from variable import *
+from rnn import *
 
 _module_class_factory = dict({
 	'portal': portal,
@@ -17,12 +18,15 @@ _module_class_factory = dict({
 	'relu': relu,
 	'bias': add_biases,
 	'dot': matmul,
+	'batchnorm': batch_norm,
+	'variable': variable,
+	'constant': constant,
+	'lookup': lookup,
+	'lstm_uni': lstm_uni,
 	'crossent': crossent,
 	'softmax_crossent': softmax_crossent,
 	'l2': l2,
-	'batchnorm': batch_norm,
-	'variable': variable,
-	'constant': constant
+	'weighted_loss': weighted_loss
 })
 
 def module_class_factory(name):

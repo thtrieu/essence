@@ -5,6 +5,9 @@ def portal(self, shape = (0,)):
 def variable(self, val, trainable = True):
     return self._x('variable', val, trainable)
 
+def lookup(self, val, pos, trainable = True):
+    return self._x('lookup', val, pos, trainable)
+
 def constant(self, val):
     return self._x('const', val)
 
@@ -13,6 +16,9 @@ def conv2d(self, x, kernel, pad = (0, 0), stride = (1, 1)):
 
 def maxpool2(self, x):
     return self._x('maxpool2', x)
+
+def lstm1(self, x, lens, hidden_size):
+    return self._x('lstm_uni', x, lens, hidden_size)
 
 def matmul(self, x, w):
     return self._x('dot', x, w)
@@ -43,3 +49,10 @@ def crossent(self, x):
 
 def softmax(self, x):
     return self._x('softmax', x)
+
+def l2_regularize(self, w, center = 0.):
+    return self._x('l2', w, center)
+
+def weighted_loss(self, *pairs):
+    losses, weights = zip(*pairs)
+    return self._x('weighted_loss', weights, *losses)

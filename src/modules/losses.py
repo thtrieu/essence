@@ -12,6 +12,20 @@ class Loss(Module):
     def backward(self, grad):
         return self._cal_grad(grad), None
 
+class weighted_loss(Module):
+    def __init__(self, *args):
+        w = list(args)[-1]
+        self._w = np.array(w)
+        self._out_shape = ()
+    
+    def forward(self, *args):
+        losses = np.array(list(args))
+        weighted = losses * self._w
+        return weighted.sum()
+    
+    def backward(self, grad):
+        return tuple(self._w * grad)
+        
 class softmax_crossent(Loss):
     def _cal_loss(self, x):
         x -= x.max(1, keepdims = True)
@@ -37,7 +51,7 @@ class crossent(Loss):
 class l2(Loss):
     def _cal_loss(self, x):
         self._diff = x - self._t
-        return np.pow(self._diff, 2).mean()
+        return np.power(self._diff, 2).mean()
 
     def _cal_grad(self, grad):
         return grad * self._diff
