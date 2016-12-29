@@ -4,9 +4,11 @@
 
 Is an on-going project that builds auto-differentiable, directed-acyclic computational-graph using `numpy`, with occasional falls back to `C` whenever perfomance is demanded. The interface is inspired by `Tensorflow`. Currenly the project supports CPU only.
 
-Current working layers: fully connected, convolution, dropout, batch normalization. 
+Current working layers: fully connected, convolution, dropout, batch normalization, long short term memory
 
 TODO: Augmented memory RNN: namely a Neural Turing Machine (should be cool).
+
+*Motivation:* if there is one algorithm to understand in Deep Learning, that might be Back Propagation. Not chaining derivaties on the paper but actually implement it, experience yourself the vanishing/exploding gradients, witness numerical underflow/overflow in cross-entropy softmax or see the *linear carousel* as one solid line in your code is just wonderful.
 
 ### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
 
