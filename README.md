@@ -76,7 +76,7 @@ This achieves 97% test accuracy.
 
 Only one half of words in the dataset is covered by the embeddings. The many-to-one LSTM is designed to extract only the last relevant outputs for each sentence in batch (they have different lengths and are padded to be equal). After the recurrent is two fully-connected with dropout in between.
 
-A sample from `lstm-embed.py`, training is still in progress.
+A sample from `lstm-embed.py`
 
 ```python
 def lstm_layer(net, embeddings, pos, 
@@ -102,6 +102,8 @@ regularized_loss = net.weighted_loss(
     (vanilla_loss, 1.0), (regularizer1, .2), (regularizer2, .2))
 net.optimize(regularized_loss, 'adam', 1e-3)
 ```
+
+The test accuracy was **85%** while training overfit to **98%**, this tells more regularization is needed, however this is enough for a demonstration as I need to move on for the next thing.
 
 ### License
 GPL 3.0 (see License in this repo)

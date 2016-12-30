@@ -54,12 +54,12 @@ class lstm_uni(Module):
             return c_new, h_new
         
         def backward(self, gc, gh):
-            gates = self._gates
-            tanh2 = self._tanh * self._tanh
-            g_tanh = gh * gates['o']
             ghx = 0.
+            gates = self._gates
+            g_tanh = gh * gates['o']
+            dtanh = _dtanh(self._tanh)
             # linear carousel:
-            gc_ = g_tanh * (1. - tanh2) + gc
+            gc_ = g_tanh * dtanh + gc
             go, gi = gh * self._tanh, gc_ * gates['g']
             gf, g_ = gc_ * self.c, gc_ * gates['i']
             for pair in zip([go, gi, gf, g_], 'oifg'):
@@ -125,4 +125,4 @@ class lstm_uni(Module):
             grad_x = [gx] + grad_x
         grad_x = np.stack(grad_x, 1)
         return np.pad(grad_x, 
-            ((0,0),(0,self._pad),(0,0)), 'constant')
+            ((0,0), (0, self._pad), (0,0)), 'constant')
