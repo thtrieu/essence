@@ -4,7 +4,7 @@ from losses import *
 from signatures import *
 from common import *
 from variable import *
-from rnn import *
+from lstm import lstm_uni
 
 _module_class_factory = dict({
 	'portal': portal,

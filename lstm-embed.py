@@ -56,21 +56,20 @@ regularized_loss = net.weighted_loss(
     (vanilla_loss, 1.0), (regularizer1, .2), (regularizer2, .2))
 net.optimize(regularized_loss, 'adam', 1e-3)
 
-# Helper functions
+# Helper function
 def real_len(x_batch):
     return [np.argmin(s + [0]) for s in x_batch]
 
 # Training
-batch = int(64); epoch = int(15); count = int(0)
+batch = int(64); epoch = int(15); step = int(0)
 for sentences, label in dat.yield_batch(batch, epoch):
     pred, loss = net.train([predict], {
-        x: sentences, y: label, keep: .75,
+        x: sentences, y: label, keep: 1.,
         lens: real_len(sentences), center : 0. })
     acc = accuracy(pred, label)
     print('Step {}, Loss {}, Accuracy {}'.format(
-        count + 1, loss, acc))
-    count += 1
-
+        step + 1, loss, acc))
+    step += 1
 
 x_test, y_test = dat.yield_test()
 pred = net.forward([predict], {

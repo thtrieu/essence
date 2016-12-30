@@ -72,9 +72,9 @@ net.optimize(loss, 'adam', 1e-3)
 
 This achieves 97% test accuracy.
 
-### Test 3: LSTM on word embeddings for Vietnamese Question classification + Dropout + L2 weight regularize
+### Test 3: LSTM on word embeddings for Vietnamese Question classification + Dropout + L2 weight decay
 
-Only one half of words in the dataset is covered by the embeddings. The many-to-one LSTM is designed to extract only the last relevant outputs for each sentence in batch (they have different lengths and are padded to be equal). After the recurrent is two fully-connected with dropout in between.
+Only one half of words in the dataset is covered by the embeddings. The many-to-one LSTM is designed to extract only its last relevant outputs for each sentence in batch (they have different lengths and are padded to be equal). After the recurrent is two fully-connected layers with dropout in between.
 
 A sample from `lstm-embed.py`
 
