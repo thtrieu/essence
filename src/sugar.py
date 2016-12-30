@@ -1,4 +1,10 @@
 
+def __getitem__(self, item):
+    return self._x('slice', item[0], item[1:])
+
+def batch_slice(self, x, position, axis, shift = 0):
+    return self._x('batch_slice', x, position, axis, shift)
+
 def portal(self, shape = (0,)):
     return self._x('portal', shape)
 
@@ -17,8 +23,8 @@ def conv2d(self, x, kernel, pad = (0, 0), stride = (1, 1)):
 def maxpool2(self, x):
     return self._x('maxpool2', x)
 
-def lstm1(self, x, lens, hidden_size, forget_bias = None):
-    return self._x('lstm_uni', x, lens, hidden_size, forget_bias)
+def lstm(self, x, lens, hidden_size, forget_bias = None):
+    return self._x('lstm', x, lens, hidden_size, forget_bias)
 
 def matmul(self, x, w):
     return self._x('dot', x, w)

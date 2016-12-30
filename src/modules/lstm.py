@@ -5,8 +5,18 @@ from recurring import Recurring, gate
 from activations import *
         
 class lstm_step(Recurring):
-    def _setup(self, gates):
-        self._gates = gates
+    # TODO: MAKE THIS A VALID USER MODULE
+    def _setup(self, server, inp_shape, 
+               hidden_size, forget_bias):
+        time, emb = inp_shape
+        w_shp = (hidden_size + emb, hidden_size)
+        b_shp = (hidden_size,)
+        self._gates = dict({
+            'f': gate(server, w_shp, b_shp, sigmoid, forget_bias),
+            'i': gate(server, w_shp, b_shp, sigmoid),
+            'o': gate(server, w_shp, b_shp, sigmoid),
+            'g': gate(server, w_shp, b_shp, tanh) })
+        self._out_shape = b_shp
     
     def forward(self, c, hx):
         # hx is concatenation
@@ -35,52 +45,58 @@ class lstm_step(Recurring):
         for key, grad in zip('oifg', [go, gi, gf, gg]):
             ghx = ghx + self._gates[key].backward(grad)
         return gc_old * f, ghx
+        
 
-class lstm_uni(Module):
-    """ Many-to-one BASIC Long Short Term Memory """
+class lstm(Module):
+    """ BASIC Long Short Term Memory """
 
     def __init__(self, server, inp_shape, lens_shape, 
                 hidden_size, forget_bias):
-        self._max_len, emb_dim = inp_shape
-        w_shp = (hidden_size + emb_dim, hidden_size)
-        b_shp = (hidden_size,)
-        gates = dict({
-            'f': gate(server, w_shp, b_shp, sigmoid, 1.5),
-            'i': gate(server, w_shp, b_shp, sigmoid),
-            'o': gate(server, w_shp, b_shp, sigmoid),
-            'g': gate(server, w_shp, b_shp, tanh) })
-        self._step = lstm_step(gates)
-        self._out_shape = (hidden_size,)
+        self._step = lstm_step(
+            server, inp_shape, hidden_size, forget_bias)
+        self._out_shape = (inp_shape[0], hidden_size)
         self._size = hidden_size
 
-    def forward(self, x, lens):
-        lens = np.array(lens) 
-        self._pad = self._max_len - lens.max()
-        onehot = np.zeros((lens.size, lens.max()))
-        onehot[np.arange(lens.size), lens - 1] = 1
-        out_shape = nxshape(x, self._out_shape)
+    def forward(self, x, lens = None):
+        # create mask for lens
+        full_len = x.shape[1]
+        if lens is not None:
+            lens = np.array(lens) - 1.0
+        elif lens is None:
+            lens = np.ones(full_len)
+            lens = lens * full_len
+        lens = lens[:, None]
+        
+        mask = (lens >= range(full_len))
+        mask = mask.astype(np.float32)
+        out_shape = nxshape(
+            x, self._step._out_shape)
 
+        o = np.zeros(out_shape)
         h = np.zeros(out_shape)
         c = np.zeros(out_shape)
-        result = np.zeros(out_shape)
-        for t in range(lens.max()):
+        result = list() # return this
+        for t in range(full_len):
             x_t = x[:, t, :]
             hx = np.concatenate([h, x_t], 1)
-            c, h = self._step.forward(c, hx)
-            result += onehot[:, t, None] * h
-        self._1hot = onehot
-        return result
-
-    def backward(self, gh, gc = 0.):
+            c, h_new = self._step.forward(c, hx)
+            mt = mask[:, t, None]
+            h = (1 - mt) * o + mt * h_new
+            result.append(h)
+        self._mask = mask
+        return np.stack(result, 1)
+    
+    def backward(self, gh): # b x t x s
         grad_x = list()
         grad_h = 0.; grad_c = 0.
-        for t in range(self._step._size(), 0, -1):
-            grad_h += self._1hot[:, t - 1, None] * gh
+        gh *= self._mask[:, :, None]
+
+        for t in range(self._step.size(), 0, -1):
+            grad_h += gh[:, t - 1, :]
             grad_c, grad_hx = \
                 self._step.backward(grad_c, grad_h)
             grad_h = grad_hx[:, :self._size]
             gx = grad_hx[:, self._size:]
             grad_x = [gx] + grad_x
-        grad_x = np.stack(grad_x, 1)
-        return np.pad(grad_x, 
-            ((0,0), (0, self._pad), (0,0)), 'constant')
+
+        return np.stack(grad_x, 1)

@@ -35,20 +35,7 @@ class batch_norm(Module):
         x_ = grad - self._normed * tmp * 1. / N
         x_ = self._rstd * self._gamma * x_
         mean, var = x_.mean(self._fd), x_.var(self._fd)
-        return (x_ - mean) / np.sqrt(var + 1e-8), tmp, None
-
-class reshape(Module):
-    def __init__(self, server, x_shape, new_shape):
-        self._x_shape = (x_shape)
-        self._out_shape = (new_shape)
-
-    def forward(self, x):
-        return x.reshape(
-            nxshape(x, self._out_shape))
-    
-    def backward(self, grad):
-        return grad.reshape(
-            nxshape(grad, self._x_shape))		
+        return (x_ - mean) / np.sqrt(var + 1e-8), tmp, None	
 
 class add_biases(Module):
     def __init__(self, server, inp_shape, b_shape):
@@ -96,3 +83,4 @@ class maxpool2x2(Module):
         unpooled = np.zeros((n, h*2, w*2, f), dtype = np.float32)
         c_gradxp2(unpooled, self._mark, grad, *self._inp_shape)
         return unpooled
+

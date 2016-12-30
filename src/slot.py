@@ -11,13 +11,13 @@ class VariableSlot(object):
     @property
     def val(self):
         return self._val
-    
-    def lookup(self, pos):
-        return np.take(self._val, pos, axis = 0)
-    
+
     @property
     def grad(self):
         return self._grad
+    
+    def lookup(self, pos):
+        return np.take(self._val, pos, axis = 0)
 
     def set_grad(self, grad):
         if self._trainable:
@@ -28,7 +28,6 @@ class VariableSlot(object):
     
     def apply_embedding_grad(self, apply_rule):
         grad, pos = self._grad
-        
         emb_size = grad.shape[-1]
         grad = grad.reshape(-1, emb_size)
         pos = pos.flatten()

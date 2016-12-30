@@ -22,7 +22,7 @@ class Recurring(Module):
         del self._stack[-1]
         return obj  
 
-    def _size(self):
+    def size(self):
         return len(self._stack)
 
 class gate(Recurring):
@@ -47,6 +47,7 @@ class gate(Recurring):
     def backward(self, grad):
         x, act = self._pop()
         linear_grad = act.backward(grad)
+
         self._b.set_grad(linear_grad.sum(0))
         self._w.set_grad(x.T.dot(linear_grad))
         return linear_grad.dot(self._w.val.T)

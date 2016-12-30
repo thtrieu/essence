@@ -4,7 +4,8 @@ from losses import *
 from signatures import *
 from common import *
 from variable import *
-from lstm import lstm_uni
+from lstm import lstm
+from shaping import *
 
 _module_class_factory = dict({
 	'portal': portal,
@@ -22,11 +23,13 @@ _module_class_factory = dict({
 	'variable': variable,
 	'constant': constant,
 	'lookup': lookup,
-	'lstm_uni': lstm_uni,
+	'lstm': lstm,
 	'crossent': crossent,
 	'softmax_crossent': softmax_crossent,
 	'l2': l2,
-	'weighted_loss': weighted_loss
+	'weighted_loss': weighted_loss,
+	'slice': slices,
+	'batch_slice': batch_slice,
 })
 
 def module_class_factory(name):

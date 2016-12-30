@@ -82,7 +82,9 @@ A sample from `lstm-embed.py`
 def lstm_layer(net, embeddings, pos, 
                 non_static, lens, hidden_size):
     w = net.lookup(embeddings, pos, trainable = non_static)
-    out = net.lstm1(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
+    out = net.lstm(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
+    # collect the right output since sentences have different length
+    out = net.batch_slice(out, lens, axis = 0, shift = -1) 
     return out
 
 def fully_connected(inp, inp_size, out_size, dropout):

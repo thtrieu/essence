@@ -15,7 +15,9 @@ def portals(net, max_len, nclass):
 def lstm_layer(net, embeddings, pos, 
                 non_static, lens, hidden_size):
     w = net.lookup(embeddings, pos, trainable = non_static)
-    out = net.lstm1(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
+    out = net.lstm(w, lens, hidden_size = hidden_size, forget_bias = 1.5)
+    # collect the right output since sentences have different length
+    out = net.batch_slice(out, lens, axis = 0, shift = -1) 
     return out
 
 def fully_connected(inp, inp_size, out_size, center, drop = None):
@@ -54,7 +56,7 @@ predict, regularizer2 = fully_connected(
 vanilla_loss = net.softmax_crossent(predict, y)
 regularized_loss = net.weighted_loss(
     (vanilla_loss, 1.0), (regularizer1, .2), (regularizer2, .2))
-net.optimize(regularized_loss, 'adam', 1e-3)
+net.optimize(regularized_loss, 'adam', 1e-4)
 
 # Helper function
 def real_len(x_batch):
@@ -64,7 +66,7 @@ def real_len(x_batch):
 batch = int(64); epoch = int(15); step = int(0)
 for sentences, label in dat.yield_batch(batch, epoch):
     pred, loss = net.train([predict], {
-        x: sentences, y: label, keep: 1.,
+        x: sentences, y: label, keep: .5,
         lens: real_len(sentences), center : 0. })
     acc = accuracy(pred, label)
     print('Step {}, Loss {}, Accuracy {}'.format(
