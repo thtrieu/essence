@@ -1,6 +1,6 @@
 *What I cannot create, I do not understand - Richard Feynman*
 
-### Numpyflow
+### essence
 
 Is an on-going project that builds auto-differentiable, directed-acyclic computational-graph using `numpy`, with occasional falls back to `C` whenever perfomance is demanded. The interface is inspired by `Tensorflow`. Currenly the project supports CPU only.
 
