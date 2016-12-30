@@ -40,7 +40,7 @@ class lstm_uni(Module):
 
             w, b = self._p[key]
             w.set_grad(self.hx.T.dot(grad))
-            b.set_grad(grad.sum())
+            b.set_grad(grad.sum(0))
             return grad.dot(w.val.T)
 
         def forward(self, c, hx):
@@ -125,4 +125,4 @@ class lstm_uni(Module):
             grad_x = [gx] + grad_x
         grad_x = np.stack(grad_x, 1)
         return np.pad(grad_x, 
-            ((0,0), (0, self._pad), (0,0)), 'constant')
+            ((0,0),(0,self._pad),(0,0)), 'constant')
