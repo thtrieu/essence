@@ -26,9 +26,14 @@ class Recurring(Module):
         return len(self._stack)
 
 class gate(Recurring):
-    """ Gates in LSTM or NTM """
-    def _setup(self, server, w_shape, b_shape, 
-               act_class, bias = None):
+    """ 
+    Gates are special case of Recurring modules
+    It starts with a linear transformation
+    And end with an activation
+    """
+    def _setup(self, server, w_shape, 
+               bias = None, act_class = sigmoid):
+        b_shape = (w_shape[-1],)
         self._act_class = act_class
         w_init = xavier(w_shape)
         if bias is not None:

@@ -55,7 +55,7 @@ predict, regularizer2 = fully_connected(
 # Crossent loss combine with weight decay
 vanilla_loss = net.softmax_crossent(predict, y)
 regularized_loss = net.weighted_loss(
-    (vanilla_loss, 1.0), (regularizer1, .2), (regularizer2, .2))
+    (vanilla_loss, 1.0), (regularizer1, .1), (regularizer2, .1))
 net.optimize(regularized_loss, 'adam', 1e-4)
 
 # Helper function
@@ -66,7 +66,7 @@ def real_len(x_batch):
 batch = int(64); epoch = int(15); step = int(0)
 for sentences, label in dat.yield_batch(batch, epoch):
     pred, loss = net.train([predict], {
-        x: sentences, y: label, keep: .5,
+        x: sentences, y: label, keep: .75,
         lens: real_len(sentences), center : 0. })
     acc = accuracy(pred, label)
     print('Step {}, Loss {}, Accuracy {}'.format(
