@@ -32,9 +32,6 @@ class ntm_attend(Recurring):
         w_i = self._mechanic['inter'].forward(w_c, w_prev, i)
         w_r = self._mechanic['rotate'].forward(w_i, r)
         w_new = self._mechanic['sharp'].forward(w_r, s + 1.)
-        # print sim.std(-1).mean(), w_c.std(-1).mean()
-        # print w_r.std(-1).mean(), w_new.std(-1).mean()
-        #print w_prev.std(-1).mean()
         return w_new
     
     def backward(self, g_wnew):
