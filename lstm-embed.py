@@ -55,7 +55,7 @@ predict, regularizer2 = fully_connected(
 vanilla_loss = net.softmax_crossent(predict, y)
 regularized_loss = net.weighted_loss(
     (vanilla_loss, 1.0), (regularizer1, .1), (regularizer2, .1))
-net.optimize(regularized_loss, 'adam', 1e-3)
+net.optimize(regularized_loss, 'rmsprop', 1e-3)
 
 # Helper function
 def real_len(x_batch):

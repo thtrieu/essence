@@ -1,16 +1,16 @@
 from recurring import Recurring, gate
-from activations import softplus, tanh, sigmoid, softmax
+from activations import softplus, tanh, sigmoid, softmax, relu
 from mechanics import * 
 
 class ntm_attend(Recurring):
     def _setup(self, server, lstm_size, vec_size, shift):
         self._gates = dict({
             'k': gate(server, (lstm_size, vec_size), None, sigmoid), # key gate
-            'b': gate(server, (lstm_size, 1), 1., softplus), # strength gate
+            'b': gate(server, (lstm_size, 1), None, softplus), # strength gate
             'i': gate(server, (lstm_size, 1), None, sigmoid), # interpolate gate
             'r': gate(server, (lstm_size, 
                               2 * shift + 1), None, softmax), # rotate gate
-            's': gate(server, (lstm_size, 1), 1., softplus) # sharpen gate
+            's': gate(server, (lstm_size, 1), None, relu) # sharpen gate
         })
         self._mechanic = dict({ # mechanics
             'cos': cosine_sim(), # similarity
@@ -32,6 +32,7 @@ class ntm_attend(Recurring):
         w_i = self._mechanic['inter'].forward(w_c, w_prev, i)
         w_r = self._mechanic['rotate'].forward(w_i, r)
         w_new = self._mechanic['sharp'].forward(w_r, s + 1.)
+        #print w_new.std(-1).mean()
         return w_new
     
     def backward(self, g_wnew):

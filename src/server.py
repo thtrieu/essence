@@ -11,6 +11,7 @@ class ParameterServer(object):
     
     def __init__(self):
         self._slots = list()
+        self._optimizer = None
 
     def issue_movingvar_slot(self, shape, momen):
         slot = MovingVariableSlot(shape, momen)
@@ -34,11 +35,12 @@ class ParameterServer(object):
     
     def save(self, file_name):
         with open(file_name, 'wb') as f:
-            pickle.dump([self._slots], f, protocol = -1)
+            pickle.dump(
+                [self._slots, self._optimizer], f, protocol = -1)
         
     def load(self, file_name):
         with open(file_name, 'rb') as f:
-            slots = pickle.load(f)[0]
+            slots, self._optimizer = pickle.load(f)
         assert len(slots) == len(self._slots)
         for i, slot in enumerate(self._slots):
             slot.load(slots[i])

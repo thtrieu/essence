@@ -1,12 +1,14 @@
 from module import Module
 from rnn_step import ntm_step
-from src.utils import nxshape
+from src.utils import nxshape, guass, xavier
 import numpy as np
+import cPickle as pickle
 
 class turing(Module):
     def __init__(self, server, x_shape, out_size, 
                 memory_size, vec_size, 
                 lstm_size, shift = 1):
+        self._mem = None
         self._mem_shape = (memory_size, vec_size)
         self._read_size = (vec_size,)
         self._h_shape = (lstm_size,)
@@ -18,14 +20,23 @@ class turing(Module):
 
     def forward(self, x, lens = None):
         # Initial state
-        memory = np.zeros(nxshape(x, self._mem_shape))
-        mem_read = np.random.rand(*nxshape(x, self._read_size)) * .1
+        if self._mem is None:
+            self._mem = np.array(
+            [np.random.rand(*self._mem_shape)] \
+                                * x.shape[0])
+            assert np.array_equal(
+                self._mem[0, :, :], self._mem[1, :, :])
+            with open('mem_init', 'wb') as f:
+                pickle.dump(self._mem, f, protocol = -1)
+                
+        memory = self._mem
+        mem_read = np.ones(nxshape(x, self._read_size)) * .1
         h = np.zeros(nxshape(x, self._h_shape))
         c = np.zeros(h.shape)
         w_read = np.zeros(nxshape(x, self._w_shape))
         w_write = np.zeros(nxshape(x, self._w_shape))
         w_read[:, 0] = np.ones(w_read.shape[0])
-        w_write[:, -1] = np.ones(w_write.shape[0])
+        w_write[:, 0] = np.ones(w_write.shape[0])
         
         # Loop
         result = list()
@@ -48,7 +59,7 @@ class turing(Module):
         gw = np.zeros(gr.shape)
 
         gradx = list();
-        for t in range(grad.shape[1] - 1, - 1, - 1):
+        for t in range(grad.shape[1] - 1, -1, -1):
             grad_t = grad[:, t, :]
             gc, gh, gr, gw, gread, gmem, gx_t = \
                 self._step.backward(gc, gh, gr, gw,

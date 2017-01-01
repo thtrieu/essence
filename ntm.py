@@ -3,7 +3,7 @@ from src.utils import randn, uniform, guass, read_mnist, accuracy
 import numpy as np
 from src.net import Net
 
-batch = 64; epoch = 4000
+batch = 64; epoch = 10000
 out_dim = inp_dim = 10
 hid_dim = 128;
 seq_length = 10;
