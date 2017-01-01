@@ -14,13 +14,19 @@ class Recurring(Module):
         self._stack = list()
         self._setup(*args, **kwargs)
 
-    def _push(self, obj):
-        self._stack.append(obj)
+    def _setup(*args, **kwargs):
+        pass
+
+    def _push(self, *objs):
+        objs = list(objs)
+        if len(objs) == 1:
+            objs = objs[0]
+        self._stack.append(objs)
     
     def _pop(self):
-        obj = self._stack[-1]
+        objs = self._stack[-1]
         del self._stack[-1]
-        return obj  
+        return objs
 
     def size(self):
         return len(self._stack)
@@ -46,7 +52,7 @@ class gate(Recurring):
     def forward(self, x):
         linear = x.dot(self._w.val) + self._b.val
         act = self._act_class(None, None)
-        self._push((x, act))
+        self._push(x, act)
         return act.forward(linear)
         
     def backward(self, grad):

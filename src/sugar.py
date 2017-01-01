@@ -2,6 +2,11 @@
 def __getitem__(self, item):
     return self._x('slice', item[0], item[1:])
 
+def turing(self, x, out_size, memory_size, 
+            vec_size, controller_size, shift = 1):
+    return self._x('turing', x, out_size, memory_size, 
+                    vec_size, controller_size, shift)
+
 def batch_slice(self, x, position, axis, shift = 0):
     return self._x('batch_slice', x, position, axis, shift)
 
@@ -38,23 +43,29 @@ def plus_b(self, x, b):
 def softmax_crossent(self, x, t):
     return self._x('softmax_crossent', x, t)
 
+def logistic(self, x, t):
+    return self._x('logistic', x, t)
+
 def batch_norm(self, x, gamma, is_training, momentum = .9):
     return self._x('batchnorm', x, gamma, is_training, momentum)
 
-def reshape(self, x, new_shape):
-    return self._x('reshape', x, new_shape)
+def reshape(self, x, new_shape, over_batch):
+    return self._x('reshape', x, new_shape, over_batch)
 
 def dropout(self, x, keep_prob):
     return self._x('drop', x, keep_prob)
 
 def sigmoid(self, x):
-    return self._x('softmax', x)
+    return self._x('sigmoid', x)
 
-def crossent(self, x):
-    return self._x('crossent', x)
+def crossent(self, x, t):
+    return self._x('crossent', x, t)
 
 def softmax(self, x):
     return self._x('softmax', x)
+
+def l2(self, x, t):
+    return self._x('l2', x, t)
 
 def l2_regularize(self, w, center = 0.):
     return self._x('l2', w, center)

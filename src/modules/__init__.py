@@ -6,6 +6,7 @@ from common import *
 from variable import *
 from lstm import lstm
 from shaping import *
+from turing import turing
 
 _module_class_factory = dict({
 	'portal': portal,
@@ -30,6 +31,8 @@ _module_class_factory = dict({
 	'weighted_loss': weighted_loss,
 	'slice': slices,
 	'batch_slice': batch_slice,
+	'turing': turing,
+	'logistic': logistic,
 })
 
 def module_class_factory(name):

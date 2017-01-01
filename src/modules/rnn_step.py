@@ -1,5 +1,5 @@
 from rnn_mem import ntm_memory
-from attentions import ntm_attend
+from attention import ntm_attend
 from recurring import Recurring, gate
 from activations import *
 import numpy as np
@@ -30,7 +30,7 @@ class lstm_step(Recurring):
         o, i, f, g = gate_vals
         c_new  = c * f + i * g
         squeeze = np.tanh(c_new)
-        self._push((gate_vals, c, squeeze))
+        self._push(gate_vals, c, squeeze)
         h_new = o * squeeze
         return c_new, h_new
     
@@ -52,47 +52,48 @@ class lstm_step(Recurring):
         return gc_old * f, gh, gx
 
 class ntm_step(Recurring):
-    def __init__(self, server, x_shape, mem_size, vec_size, 
+    def _setup(self, server, x_shape, mem_size, vec_size, 
                  lstm_size, shift, out_size):
-        time_length, x_size = x_shape
-        control_xshape = (time_length, x_size + lstm_size + vec_size)
+        self._vec_size = vec_size # M
+        time_length, x_size = x_shape # T x I
+        control_xshape = (time_length, vec_size + x_size)
         self._control = lstm_step(server, control_xshape, lstm_size, 1.5)
         self._rhead = ntm_attend(server, lstm_size, vec_size, shift)
         self._whead = ntm_attend(server, lstm_size, vec_size, shift)
-        self._memory = ntm_memory(lstm_size, mem_size, vec_size)
-        self._readout = gate(server, (lstm_size, out_size))
+        self._memory = ntm_memory(server, lstm_size, mem_size, vec_size)
+        self._readout = gate(server, (lstm_size, out_size), None, sigmoid)
 
-    
-    def forward(self, c, h_nmt, x, w_read, w_write, memory):
-        c, h_lstm = self._control.forward(c, h_nmt, x)
-        w_read = self._rhead.forward(memory, h_lstm, w_read)
-        w_write = self._whead.forward(memory, h_lstm, w_write)
+    def forward(self, c, h, x, w_read, w_write, mem_read, memory):
+        mx = np.concatenate([mem_read, x], 1)
+        c, h = self._control.forward(c, h, mx)
+        w_read = self._rhead.forward(memory, h, w_read)
+        w_write = self._whead.forward(memory, h, w_write)
         mem_read, new_mem = self._memory.forward(
-            h_lstm, w_read, w_write, memory)
-        h_nmt = np.concatenate([mem_read, h_lstm], 1)
-        readout = self._readout.forward(h_lstm)
-        recurlets = (c, h_nmt, w_read, w_write, new_mem)
+            h, w_read, w_write, memory)
+        readout = self._readout.forward(h)
+        recurlets = (c, h, w_read, w_write, mem_read, new_mem)
+        self._push(recurlets)
         return recurlets, readout
     
-    def backward(self, gc, gh_nmt, gr, gw, gm, gout):
+    def backward(self, gc, gh, gr, gw, gread, gm, gout):
         """
         Args: 
-            Respectively, grad of lstm's cell, h_nmt, 
-            w_read, w_write, new_memory, & readout
+            Respectively, gradient of lstm's cell, h, 
+            w_read, w_write, new_memory, mem_read & readout
         """
-        g_memread = gh_nmt[:, :self._vec_size]
-        g_hlstm = gh_nmt[:, self._vec_size:]
+        # grad flow through readout
         g_hout = self._readout.backward(gout)
         # grad flow through memory
         gm, gm_r, gm_w, gm_h = \
-            self._memory.backward(g_memread, gm)
+            self._memory.backward(gread, gm)
         # grad flow through write & read attention
-        gw, gw_m, gw_h = self._whead.backward(gw)
-        gr, gr_m, gr_h = self._rhead.backward(gr)
+        gw_m, gw_h, gw = self._whead.backward(gw + gm_w)
+        gr_m, gr_h, gr = self._rhead.backward(gr + gm_r)
         # grad flow through controller
         gc, gh, gx = self._control.backward(
-            gc, g_hlstm + ghout + gm_h + gw_h + gr_h)
-        # grad summing
+            gc, gh + g_hout + gm_h + gw_h + gr_h)
+        gread = gx[:, :self._vec_size]
+        gx = gx[:, self._vec_size:]
+        # grad summation
         gm = gm + gr_m + gw_m
-        gw, gr = gw + gm_w, gr + gm_r
-        return gc, gh, gr, gw, gm, gx
+        return gc, gh, gr, gw, gread, gm, gx

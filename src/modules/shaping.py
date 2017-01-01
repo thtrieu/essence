@@ -3,17 +3,20 @@ from src.utils import nxshape
 import numpy as np
 
 class reshape(Module):
-    def __init__(self, server, x_shape, new_shape):
-        self._x_shape = (x_shape)
-        self._out_shape = (new_shape)
+    def __init__(self, server, x_shape, new_shape, 
+                 over_batch = False):
+        self._over_batch = over_batch
+        self._out_shape = new_shape
 
     def forward(self, x):
-        return x.reshape(
-            nxshape(x, self._out_shape))
+        new_shape = self._out_shape
+        if not self._over_batch:
+            new_shape = nxshape(x, new_shape)
+        self._x_shape = x.shape
+        return x.reshape(new_shape)
     
     def backward(self, grad):
-        return grad.reshape(
-            nxshape(grad, self._x_shape))	
+        return grad.reshape(self._x_shape)
 
 class batch_slice(Module):
     def __init__(self, _, inp_shape, pos_shape, axis, shift):
@@ -46,6 +49,7 @@ class slices(Module):
         self._inp_shape = inp_shape
     
     def forward(self, x):
+        t = x[self._item]
         return x[self._item]
 
     def backward(self, grad):

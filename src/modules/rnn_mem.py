@@ -3,10 +3,10 @@ import numpy as np
 from activations import *
 
 class ntm_memory(Recurring):
-    def _setup(self, lstm_size, mem_size, vec_size):
+    def _setup(self, server, lstm_size, mem_size, vec_size):
         self._size = (mem_size, vec_size)
         self._gates = dict({
-            'f': gate(server, (lstm_size, vec_size), 1.5), # forget
+            'f': gate(server, (lstm_size, vec_size), None, sigmoid), # forget
             'a': gate(server, (lstm_size, vec_size), None, tanh) # add
         })
     
@@ -20,10 +20,10 @@ class ntm_memory(Recurring):
         erase_comp = 1. - erase
         new_mem = memory * erase_comp + write
         
-        self._push((
+        self._push(
             memory, e, a, 
             w_read, w_write, 
-            erase_comp))
+            erase_comp)
         return mem_read, new_mem
     
     def backward(self, g_memread, g_newmem):
@@ -33,10 +33,9 @@ class ntm_memory(Recurring):
 
         # grad flow through new_mem
         ge_m = g_newmem * erase_comp
-        ge_comp = g_newmem * memory
+        g_erase = -1. * g_newmem * memory
         # grad flow through eraser
-        g_erase = - ge_comp
-        g_e = np.einsum('bnm,bn->bm', g_earse, w_write)
+        g_e = np.einsum('bnm,bn->bm', g_erase, w_write)
         g_ew = np.einsum('bnm,bm->bn', g_erase, e)
         # grad flow through writer
         g_a = np.einsum('bnm,bn->bm', g_newmem, w_write)

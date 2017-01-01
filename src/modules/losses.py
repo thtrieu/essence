@@ -42,11 +42,21 @@ class crossent(Loss):
     def _cal_loss(self, x):
         self._x = x
         crossed = - np.multiply(self._t, np.log(x))
-        return crossed.sum(1).mean() 
+        return crossed.sum(-1).mean() 
 
     def _cal_grad(self, grad):
         dLdp = - np.divide(self._t, self._x + 1e-20)
-        return 1./self._batch * grad * dLdp
+        return 1./self._t.shape[0] * grad * dLdp
+
+class logistic(Loss):
+    def _cal_loss(self, x):
+        gain = self._t * np.log(x) + (1 - self._t) * np.log(1 - x)
+        self._x = x
+        return (-1 * gain).mean()
+
+    def _cal_grad(self, grad):
+        div = self._x * (1 - self._x) + 1e-8
+        return grad * (self._x - self._t) / div
 
 class l2(Loss):
     def _cal_loss(self, x):
