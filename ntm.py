@@ -39,8 +39,7 @@ for count in xrange(epoch):
     inp_feed = np.concatenate(
         [start_symbol, inp, stop_symbol, zeros], 1)
     pred, loss = net.train([logits], {
-        x: inp_feed,
-        y: inp })
+        x: inp_feed, y: inp })
 
     pred = pred.round()
     acc = np.equal(pred, inp.reshape([-1, inp_dim]))

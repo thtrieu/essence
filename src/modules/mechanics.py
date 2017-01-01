@@ -67,7 +67,7 @@ class circular_conv(Recurring):
         s = kernel.shape[1] / 2
         k = np.arange(-s, s + 1)
         patches = list()
-        M = x.shape[1]
+        M = x.shape[-1]
         for i in xrange(M):
             patches += [x[:, (k + i) % M]]
         self._push(patches, kernel, k)
@@ -79,7 +79,7 @@ class circular_conv(Recurring):
 
     def backward(self, grad):
         patches, kernel, k = self._pop()
-        M = grad.shape[1]
+        M = grad.shape[-1]
         gradx = np.zeros(grad.shape)
         gradk = np.zeros(kernel.shape)
         for i in xrange(M):
@@ -121,7 +121,7 @@ class sharpen(Recurring):
 
     def forward(self, x, gamma):
         xpow = self._amp.forward(x, gamma)
-        xave = self._ave.forward(x)
+        xave = self._ave.forward(xpow)
         return xave 
     
     def backward(self, grad):
