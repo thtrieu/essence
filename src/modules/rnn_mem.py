@@ -11,15 +11,16 @@ class ntm_memory(Recurring):
         })
     
     def forward(self, h_lstm, w_read, w_write, memory):
+        # read
         mem_read = np.einsum('bnm,bn->bm', memory, w_read)
-        
+        # erase & add
         e = self._gates['f'].forward(h_lstm) # vec_size
         a = self._gates['a'].forward(h_lstm) # vec_size
         erase = w_write[:, :, None] * e[:, None, :]
         write = w_write[:, :, None] * a[:, None, :]
         erase_comp = 1. - erase
         new_mem = memory * erase_comp + write
-        
+        # push to recurrent stack
         self._push(
             memory, e, a, 
             w_read, w_write, 

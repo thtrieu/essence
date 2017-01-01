@@ -19,13 +19,13 @@ class turing(Module):
     def forward(self, x, lens = None):
         # Initial state
         memory = np.zeros(nxshape(x, self._mem_shape))
-        mem_read = np.zeros(nxshape(x, self._read_size))
+        mem_read = np.random.rand(*nxshape(x, self._read_size)) * .1
         h = np.zeros(nxshape(x, self._h_shape))
-        c = np.zeros(h.shape); o = np.zeros(h.shape)
-        w_read = np.ones(nxshape(x, self._w_shape))
-        w_write = np.ones(w_read.shape)
-        w_read /= self._mem_shape[1]
-        w_write /= self._mem_shape[1]
+        c = np.zeros(h.shape)
+        w_read = np.zeros(nxshape(x, self._w_shape))
+        w_write = np.zeros(nxshape(x, self._w_shape))
+        w_read[:, 0] = np.ones(w_read.shape[0])
+        w_write[:, -1] = np.ones(w_write.shape[0])
         
         # Loop
         result = list()
@@ -47,12 +47,11 @@ class turing(Module):
         gc = np.zeros(gh.shape)
         gw = np.zeros(gr.shape)
 
-        gradx = list()
+        gradx = list();
         for t in range(grad.shape[1] - 1, - 1, - 1):
             grad_t = grad[:, t, :]
             gc, gh, gr, gw, gread, gmem, gx_t = \
                 self._step.backward(gc, gh, gr, gw,
                     gread, gmem, grad_t)
-            gradx.append(gx_t)
-
+            gradx = [gx_t] + gradx
         return np.stack(gradx, 1)

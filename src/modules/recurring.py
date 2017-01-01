@@ -45,7 +45,7 @@ class gate(Recurring):
         if bias is not None:
             b_init = np.ones(b_shape) * bias
         elif bias is None:
-            b_init = guass(0., 1e-2, b_shape)
+            b_init = guass(0.1, 1e-2, b_shape)
         self._w = server.issue_var_slot(w_init, True)
         self._b = server.issue_var_slot(b_init, True)
     

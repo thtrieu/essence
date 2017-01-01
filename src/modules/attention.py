@@ -5,12 +5,12 @@ from mechanics import *
 class ntm_attend(Recurring):
     def _setup(self, server, lstm_size, vec_size, shift):
         self._gates = dict({
-            'k': gate(server, (lstm_size, vec_size), None, tanh), # key gate
-            'b': gate(server, (lstm_size, 1), None, softplus), # strength gate
+            'k': gate(server, (lstm_size, vec_size), None, sigmoid), # key gate
+            'b': gate(server, (lstm_size, 1), -1., softplus), # strength gate
             'i': gate(server, (lstm_size, 1), None, sigmoid), # interpolate gate
             'r': gate(server, (lstm_size, 
                               2 * shift + 1), None, softmax), # rotate gate
-            's': gate(server, (lstm_size, 1), None, softplus) # sharpen gate
+            's': gate(server, (lstm_size, 1), +1., softplus) # sharpen gate
         })
         self._mechanic = dict({ # mechanics
             'cos': cosine_sim(), # similarity
@@ -26,10 +26,10 @@ class ntm_attend(Recurring):
             gates_vals.append(
                 self._gates[name].forward(lstm_h))
         k, b, i, r, s = gates_vals
-
         sim = self._mechanic['cos'].forward(memory, k)
         self._push(b, sim) # b x 1 and b x n
         w_c = self._mechanic['soft'].forward(b * sim)
+        #print sim.std(-1).mean(), w_c.std(-1).mean()
         w_i = self._mechanic['inter'].forward(w_c, w_prev, i)
         w_r = self._mechanic['rotate'].forward(w_i, r)
         w_new = self._mechanic['sharp'].forward(w_r, s + 1.)

@@ -11,6 +11,9 @@ class Optimizer(object):
         self._current = var_slot
         var_slot.apply_grad(self._rule)
         self._current = None
+    
+    def clip(self, val):
+        self
 
     def finalize_step(self): pass
     def _construct(*args, **kwargs): pass
@@ -24,6 +27,25 @@ class StochasticDescentOptimizer(Optimizer):
     
     def finalize_step(self):
         self._lr *= self._decay
+
+class RMSPropOptimizer(Optimizer):
+    def _construct(self, p = .975):
+        self._p = p
+        self._moments = dict()
+    
+    def _rule(self, v, g):
+        g = np.clip(g, -10., 10.)
+        c = self._current
+        m = self._moments
+        if c not in m:
+            m[c] = 0
+
+        r = m[c]
+        r = self._p * r + (1. - self._p) * g * g
+        m[c] = r
+
+        dv = self._lr * np.divide(g, np.sqrt(1e-8 + r))
+        return v - dv
 
 
 class AdamOptimizer(Optimizer):
@@ -54,7 +76,8 @@ Optimizer factory
 
 _optimizer_factory = dict({
     'sgd' : StochasticDescentOptimizer,
-    'adam': AdamOptimizer
+    'adam': AdamOptimizer,
+    'rmsprop': RMSPropOptimizer
 })
 
 def optimizer_factory(name, *args, **kwargs):

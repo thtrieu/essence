@@ -8,6 +8,17 @@ class VariableSlot(object):
         self._grad = None
         self._trainable = trainable
 
+    def load(self, another):
+        assert type(another) is VariableSlot
+        assert type(self.val) is type(another.val)
+        assert self.val.shape == another.val.shape
+        self._val = another.val
+        assert type(self.grad) is type(another.grad)
+        if type(self.grad) is np.ndarray:
+            assert self.grad.shape == another.grad.shape
+        self._grad = another.grad
+        self._trainable = another._trainable
+
     @property
     def val(self):
         return self._val
