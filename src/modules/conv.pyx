@@ -3,25 +3,25 @@ from cython.parallel import prange, parallel
 cimport numpy as np
 cimport cython
 
-cdef extern void conv_vko(float* v, float* k, float* o, 
+cdef extern void conv_vko(double* v, double* k, double* o, 
     int n, int h, int w, int f, 
     int ph, int pw, int out_f,
     int kh, int kw, int sh, int sw)
-cdef extern void conv_vok(float* v, float* k, float* o, 
+cdef extern void conv_vok(double* v, double* k, double* o, 
     int n, int h, int w, int f,  
     int ph, int pw, int out_f,
     int kh, int kw, int sh, int sw)
-cdef extern void conv_kov(float* v, float* k, float* o, 
+cdef extern void conv_kov(double* v, double* k, double* o, 
     int n, int h, int w, int f,  
     int ph, int pw, int out_f,
     int kh, int kw, int sh, int sw)
-cdef extern void xpool2_vo(float* v, int* m, float* o, 
+cdef extern void xpool2_vo(double* v, int* m, double* o, 
     int n, int h, int w, int f)
-cdef extern void xpool2_ov(float* v, int* m, float* o, 
+cdef extern void xpool2_ov(double* v, int* m, double* o, 
     int n, int h, int w, int f)
 
-DTYPE = np.float32
-ctypedef np.float32_t DTYPE_t
+DTYPE = np.float64
+ctypedef double DTYPE_t
 ctypedef Py_ssize_t uint
 
 @cython.boundscheck(False)

@@ -31,7 +31,9 @@ net.optimize(loss, 'rmsprop', 1e-3)
 def generate_random_input(batch, seq_length, inp_dim):
     x = np.random.rand(batch, seq_length, inp_dim).round()
     x[:, :, :2] = np.zeros(x[:, :, :2].shape)
-    return x, np.zeros(x.shape)
+    return x, np.zeros(x.shape) 
+
+net.load_checkpoint('trial149')
 
 save_every = 150
 for count in xrange(epoch):
@@ -43,9 +45,9 @@ for count in xrange(epoch):
 
     pred = pred.round()
     acc = np.equal(pred, inp.reshape([-1, inp_dim]))
-    acc = acc.astype(np.float32).mean()
+    acc = acc.astype(np.float64).mean()
     print 'Step {} Loss {} Acc {}'.format(count, loss, acc)
 
     if (count + 1) % save_every == 0:
+        print 'saving to trial{}'.format(count)
         net.save_checkpoint('trial{}'.format(count))
-        net.load_checkpoint('trial{}'.format(count))

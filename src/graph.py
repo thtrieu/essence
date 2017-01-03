@@ -38,6 +38,7 @@ class DAG(object):
     def forward(self, fetches, feed):
         assert type(fetches) is list,\
         'Fetches must be a list'
+
         forward_id = object()
         vals = list()
         for ptr in feed:
@@ -56,5 +57,3 @@ class DAG(object):
     def backward(self):
         leaf_node = self._node_pool[self._leaf]
         leaf_node.backward(1.0, self._leaf)
-        
-    

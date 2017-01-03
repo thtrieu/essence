@@ -2,8 +2,6 @@ import numpy as np
 
 class VariableSlot(object):
     def __init__(self, val, trainable):
-        if val.dtype == np.float64:
-            val = val.astype(np.float32)
         self._val = val
         self._grad = None
         self._trainable = trainable
@@ -59,7 +57,7 @@ class VariableSlot(object):
     
 class MovingVariableSlot(VariableSlot):
     def __init__(self, shape, momentum):
-        self._val = np.zeros(shape, dtype = np.float32)
+        self._val = np.zeros(shape)
         self._trainable = False
         self._alpha = momentum
         self._grad = None

@@ -1,6 +1,6 @@
 from module import Module
 from rnn_step import ntm_step
-from src.utils import nxshape, guass, xavier
+from src.utils import nxshape, guass, xavier, randint
 import numpy as np
 import cPickle as pickle
 
@@ -8,8 +8,8 @@ class turing(Module):
     def __init__(self, server, x_shape, out_size, 
                 memory_size, vec_size, 
                 lstm_size, shift = 1):
-        self._mem = None
         self._mem_shape = (memory_size, vec_size)
+        self._mem = np.ones(self._mem_shape) * .1
         self._read_size = (vec_size,)
         self._h_shape = (lstm_size,)
         self._w_shape = (memory_size,)
@@ -18,37 +18,31 @@ class turing(Module):
             server, x_shape, memory_size, vec_size, 
             lstm_size, shift, out_size)
 
-    def forward(self, x, lens = None):
-        # Initial state
-        if self._mem is None:
-            self._mem = np.array(
-            [np.random.rand(*self._mem_shape)] \
-                                * x.shape[0])
-            assert np.array_equal(
-                self._mem[0, :, :], self._mem[1, :, :])
-            with open('mem_init', 'wb') as f:
-                pickle.dump(self._mem, f, protocol = -1)
-                
-        memory = self._mem
-        mem_read = np.ones(nxshape(x, self._read_size)) * .1
+    def forward(self, x):
+        memory = np.array([self._mem] * x.shape[0])
         h = np.zeros(nxshape(x, self._h_shape))
-        c = np.zeros(h.shape)
         w_read = np.zeros(nxshape(x, self._w_shape))
         w_write = np.zeros(nxshape(x, self._w_shape))
         w_read[:, 0] = np.ones(w_read.shape[0])
         w_write[:, 0] = np.ones(w_write.shape[0])
+        mem_read = memory[:,0,:]
+        c = np.zeros(h.shape)
         
-        # Loop
+        # Loop through time
         result = list()
         for t in range(x.shape[1]):
             x_t = x[:, t, :]
-            recurlets, readout = self._step.forward(
-                c, h, x[:, t, :], w_read, 
-                w_write, mem_read, memory)
+            recurlets, readout = \
+                self._step.forward(
+                    c, h, x[:, t, :], w_read, 
+                    w_write, mem_read, memory)
             c, h_new, w_read, w_write, \
             mem_read, memory = recurlets
             result.append(readout)
         return np.stack(result, 1)
+    
+    def unitest(self, x):
+        return self.forward(x)
 
     def backward(self, grad):
         gread = np.zeros(nxshape(grad, self._read_size))
@@ -62,7 +56,8 @@ class turing(Module):
         for t in range(grad.shape[1] - 1, -1, -1):
             grad_t = grad[:, t, :]
             gc, gh, gr, gw, gread, gmem, gx_t = \
-                self._step.backward(gc, gh, gr, gw,
+                self._step.backward(
+                    gc, gh, gr, gw,
                     gread, gmem, grad_t)
             gradx = [gx_t] + gradx
         return np.stack(gradx, 1)

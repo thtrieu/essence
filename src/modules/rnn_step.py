@@ -71,7 +71,8 @@ class ntm_step(Recurring):
         mem_read, new_mem = self._memory.forward(
             h, w_read, w_write, memory)
         readout = self._readout.forward(h)
-        recurlets = (c, h, w_read, w_write, mem_read, new_mem)
+        recurlets = (c, h, w_read, w_write, \
+                     mem_read, new_mem)
         return recurlets, readout
     
     def backward(self, gc, gh, gr, gw, gread, gm, gout):

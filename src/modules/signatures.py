@@ -1,10 +1,12 @@
 from conv import c_conv2d, c_gradk, c_gradx
+from conv import c_xpool2, c_gradxp2
 from src.utils import nxshape
 from module import Module
 import numpy as np
 
-class matmul(Module):    
+class matmul(Module):
     def __init__(self, server, x_shape, w_shape):
+        self._inp_shape = x_shape
         self._out_shape = (w_shape[1],)
 
     def forward(self, x, w):
@@ -16,6 +18,7 @@ class matmul(Module):
         dx = grad.dot(self._w.T)
         dw = self._x.T.dot(grad)
         return dx, dw
+
 
 class conv(Module):
     def __init__(self, serve, x_shape, k_shape, pad, stride):
@@ -37,20 +40,41 @@ class conv(Module):
     def forward(self, x, k):
         self._x = x; self._k = k
         shp = nxshape(x, self._out_shape)
-        conved = conv.zeros32(shp)
+        conved = np.zeros(shp)
         c_conv2d(x, k, conved, *self._args)
         return conved
     
     def backward(self, grad):
-        grad = grad.astype(np.float32)
-        gk = conv.zeros32(self._kshape)
+        gk = np.zeros(self._kshape)
         c_gradk(self._x, gk, grad, *self._args)
         
         xshp = nxshape(grad, self._xshape)
-        gx = conv.zeros32(xshp)
+        gx = np.zeros(xshp)
         c_gradx(gx, self._k, grad, *self._args)
         return gx, gk
+
+
+class maxpool2x2(Module):
+    def __init__(self, server, inp_shape):
+        h, w, f = inp_shape
+        self._inp_shape = inp_shape
+        assert not h % 2 or not w % 2, \
+        'pool2x2 on odd size not supported'
+        self._out_shape = [h/2, w/2, f]
+
+    def forward(self, x):
+        pooled = np.zeros(nxshape(x, self._out_shape))
+        self._mark = np.zeros(nxshape(x, self._out_shape))
+        self._mark = self._mark.astype(np.int32)
+        c_xpool2(x, self._mark, pooled, *self._inp_shape)
+        return pooled
+
+    def backward(self, grad):
+        n, h, w, f = grad.shape
+        unpooled = np.zeros((n, h*2, w*2, f))
+        c_gradxp2(unpooled, self._mark, 
+                  grad, *self._inp_shape)
+        return unpooled
     
-    @classmethod
-    def zeros32(cls, shape):
-        return np.zeros(shape, dtype = np.float32)
+    def unitest(self, x):
+        return self.forward(x)

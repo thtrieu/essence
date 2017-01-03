@@ -113,7 +113,7 @@ def _load_bin_vec(fname, vocab):
     with open(fname, "rb") as f:
         header = f.readline()
         vocab_size, layer1_size = map(int, header.split())
-        binary_len = np.dtype('float32').itemsize * layer1_size
+        binary_len = np.dtype(np.float64).itemsize * layer1_size
         for line in xrange(vocab_size):
             word = []
             while True:

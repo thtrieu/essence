@@ -25,7 +25,8 @@ class cosine_sim(Recurring):
         knorm = self._knorm.forward(key)
         mnorm = self._mnorm.forward(memory)
         self._push(knorm, mnorm)
-        return np.einsum('bnm,bm->bn', mnorm, knorm)
+        result = np.einsum('bnm,bm->bn', mnorm, knorm)
+        return result
     
     def backward(self, grad):
         knorm, mnorm = self._pop()
@@ -51,12 +52,14 @@ class normalise(Recurring):
         return np.multiply(g, a)
 
 class interpolate(Recurring):
-    def forward(self, alpha, new, prev):
+    def forward(self, new, prev, alpha):
         self._push(new, prev, alpha)
-        return alpha * new + (1. - alpha) * prev
+        result = alpha * new + (1. - alpha) * prev
+        self.unit_test([alpha, new, prev], result)
+        return result
     
     def backward(self, grad):
-        alpha, new, prev = self._pop()
+        new, prev, alpha = self._pop()
         grad_alpha = (grad * (new - prev)).sum(-1, keepdims = True)
         grad_prev = grad * (1. - alpha)
         grad_new = grad * alpha

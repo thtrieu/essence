@@ -49,7 +49,7 @@ def logistic(self, x, t):
 def batch_norm(self, x, gamma, is_training, momentum = .9):
     return self._x('batchnorm', x, gamma, is_training, momentum)
 
-def reshape(self, x, new_shape, over_batch):
+def reshape(self, x, new_shape, over_batch = False):
     return self._x('reshape', x, new_shape, over_batch)
 
 def dropout(self, x, keep_prob):

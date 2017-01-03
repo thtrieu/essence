@@ -30,7 +30,7 @@ class Node(object):
             if self._feed is None:
                 for node in self._depend:
                     val.append(node.forward(f_id))
-            else: 
+            elif self._feed is not None:
                 val = [self._feed]
                 self._feed = None
             self._cache = self._module.forward(*val)

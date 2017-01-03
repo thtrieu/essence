@@ -3,6 +3,8 @@ from numpy.random import normal as guass
 from numpy.random import binomial as binomial
 from numpy.random import uniform as uniform
 from numpy.random import randn as randn
+from numpy.random import randint as randint
+from numpy.random import rand as rand
 import numpy as np
 
 def accuracy(predict, truth):

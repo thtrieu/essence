@@ -50,8 +50,8 @@ for count in range(5):
     batch_num = int(mnist_data.train.num_examples/batch)
     for i in range(batch_num):
         feed, target = mnist_data.train.next_batch(batch)
-        feed = feed.reshape(batch, 28, 28, 1).astype(np.float32)
-        target = target.astype(np.float32)
+        feed = feed.reshape(batch, 28, 28, 1).astype(np.float64)
+        target = target.astype(np.float64)
 
         pred, cost = net.train([fc2], {
             image: feed, 

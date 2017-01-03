@@ -4,7 +4,7 @@ from utils import extract
 class Optimizer(object):
     def __init__(self, lr = 1e-3, *args, **kwargs):
         minimize, kwargs = extract('minimize', True, **kwargs)
-        self._lr = lr * (2. * np.float32(minimize) - 1.)
+        self._lr = lr * (2. * np.float64(minimize) - 1.)
         self._construct(*args, **kwargs)
 
     def apply(self, var_slot):
@@ -34,7 +34,7 @@ class RMSPropOptimizer(Optimizer):
         self._moments = dict()
     
     def _rule(self, v, g):
-        g = np.clip(g, -10., 10.)
+        #g = np.clip(g, -10., 10.)
         c = self._current
         m = self._moments
         if c not in m:

@@ -1,5 +1,5 @@
 
-void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
+void xpool2_vo(double* v, int* m, double* o, int n, int h, int w, int f) {
     /*
     Fill empty array with result from applying maxpool 2x2, stride 2 on v
 
@@ -15,8 +15,8 @@ void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
     
     int out_h = h/2;
     int out_w = w/2;
-    float* v_ptr = v;
-    float* o_ptr = o;
+    double* v_ptr = v;
+    double* o_ptr = o;
     int* m_ptr = m;
     int v_size = h * w * f;
     int o_size = out_h * out_w * f;
@@ -35,7 +35,7 @@ void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
                 for (fi = 0; fi < f; ++fi){
                     int idx_v = off_v + fi;
                     int idx_o = off_o + fi;
-                    float max = v_ptr[idx_v];
+                    double max = v_ptr[idx_v];
                     int step = 0;
                     if (v_ptr[idx_v + step1] > max) {
                         max = v_ptr[idx_v + step1];
@@ -60,15 +60,15 @@ void xpool2_vo(float* v, int* m, float* o, int n, int h, int w, int f) {
     }
 }
 
-void xpool2_ov(float* v, int* m, float* o, int n, int h, int w, int f) {
+void xpool2_ov(double* v, int* m, double* o, int n, int h, int w, int f) {
     /*
     Given output's gradient `o` and max positions `m`,
     Calculate input's gradient `v`
     */
     int out_h = h/2;
     int out_w = w/2;
-    float* v_ptr = v;
-    float* o_ptr = o;
+    double* v_ptr = v;
+    double* o_ptr = o;
     int* m_ptr = m;
     int v_size = h * w * f;
     int o_size = out_h * out_w * f;
@@ -94,7 +94,7 @@ void xpool2_ov(float* v, int* m, float* o, int n, int h, int w, int f) {
 }
 
 
-void conv_vko(float* v, float* k, float* o, 
+void conv_vko(double* v, double* k, double* o, 
 	int n, int h, int w, int f, 
     int ph, int pw, int out_f, 
 	int kh, int kw, int sh, int sw) {
@@ -119,8 +119,8 @@ void conv_vko(float* v, float* k, float* o,
 
     int o_size = out_h * out_w * out_f;
     int v_size = h * w * f;
-    float* o_ptr = o;
-    float* v_ptr = v;
+    double* o_ptr = o;
+    double* v_ptr = v;
 
     int n_idx, ho, wo, fo, kcoli;
     int v_hi, v_wi, fi, v_idx, off_o, off_k, sho, swo;
@@ -142,7 +142,7 @@ void conv_vko(float* v, float* k, float* o,
                     fi = kcoli % f;
                     v_idx = fi + f*(v_wi - pw + w*(v_hi - ph));
                     // Use many times, save to register
-                    register float part = v_ptr[v_idx];
+                    register double part = v_ptr[v_idx];
                     for (fo = 0; fo < out_f; ++fo) {
                         o_ptr[fo+off_o] += part * k[kcoli*out_f+fo];
                     }
@@ -154,7 +154,7 @@ void conv_vko(float* v, float* k, float* o,
     }
 }
 
-void conv_vok(float* v, float* k, float* o, 
+void conv_vok(double* v, double* k, double* o, 
 	int n, int h, int w, int f, 
     int ph, int pw, int out_f, 
 	int kh, int kw, int sh, int sw) {
@@ -168,9 +168,9 @@ void conv_vok(float* v, float* k, float* o,
 
     int o_size = out_h * out_w * out_f;
     int v_size = h * w * f;
-    float* o_ptr = o;
-    float* v_ptr = v;
-    register float part;
+    double* o_ptr = o;
+    double* v_ptr = v;
+    register double part;
 
     int n_idx, ho, wo, fo, kcoli;
     int v_hi, v_wi, fi, v_idx, off_o, off_k, sho, swo;
@@ -187,7 +187,7 @@ void conv_vok(float* v, float* k, float* o,
                     } 
                     fi = kcoli % f;
                     v_idx = fi + f*(v_wi - pw + w*(v_hi - ph));
-                    register float part = v_ptr[v_idx];
+                    register double part = v_ptr[v_idx];
                     for (fo = 0; fo < out_f; ++fo) {
                     	k[kcoli*out_f+fo]+=part*o_ptr[fo+off_o];
                     }
@@ -200,7 +200,7 @@ void conv_vok(float* v, float* k, float* o,
 }
 
 
-void conv_kov(float* v, float* k, float* o, 
+void conv_kov(double* v, double* k, double* o, 
 	int n, int h, int w, int f, 
     int ph, int pw, int out_f, 
 	int kh, int kw, int sh, int sw) {
@@ -217,8 +217,8 @@ void conv_kov(float* v, float* k, float* o,
 
     int o_size = out_h * out_w * out_f;
     int v_size = h * w * f;
-    float* o_ptr = o;
-    float* v_ptr = v;
+    double* o_ptr = o;
+    double* v_ptr = v;
 
     int n_idx, ho, wo, fo, kcoli;
     int v_hi, v_wi, fi, v_idx, off_o, off_k, sho, swo;
@@ -235,7 +235,7 @@ void conv_kov(float* v, float* k, float* o,
                     } 
                     fi = kcoli % f;
                     v_idx = fi + f*(v_wi - pw + w*(v_hi - ph));
-                    register float part = 0;
+                    register double part = 0;
                     for (fo = 0; fo < out_f; ++fo) {
                     	part +=	k[kcoli*out_f+fo]*o_ptr[fo+off_o];
                     }

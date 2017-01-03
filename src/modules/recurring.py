@@ -5,7 +5,7 @@ from activations import *
 
 class Recurring(Module):
     """
-    Recurring is an internally used module that cache intermediate
+    Recurring is a type of module that cache intermediate
     activations in a stack during unrolling of recurrent layers
     Its backward() is expected to be called several times during
     Back Propagation Through Time, either full or truncated.
@@ -27,9 +27,9 @@ class Recurring(Module):
         objs = self._stack[-1]
         del self._stack[-1]
         return objs
-
-    def size(self):
-        return len(self._stack)
+    
+    def flush(self):
+        self._stack = list()
 
 class gate(Recurring):
     """ 

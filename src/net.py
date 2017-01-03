@@ -30,8 +30,7 @@ class Net(object):
         return self._dagraph.forward(fetches, feed)
 
     def train(self, fetches, feed):
-        val = self._dagraph.forward_to_leaf(
-            fetches, feed)
+        val = self._dagraph.forward_to_leaf(fetches, feed)
         self._dagraph.backward()
         self._server.apply_optimizer()
         return val
