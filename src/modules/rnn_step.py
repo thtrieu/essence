@@ -55,8 +55,8 @@ class ntm_step(Recurring):
     def _setup(self, server, x_shape, mem_size, vec_size, 
                  lstm_size, shift, out_size):
         self._vec_size = vec_size # M
-        time_length, x_size = x_shape # T x I
-        control_xshape = (time_length, vec_size + x_size)
+        x_size = x_shape[-1]
+        control_xshape = (None, vec_size + x_size)
         self._control = lstm_step(server, control_xshape, lstm_size, 1.5)
         self._rhead = ntm_attend(server, lstm_size, vec_size, shift)
         self._whead = ntm_attend(server, lstm_size, vec_size, shift)

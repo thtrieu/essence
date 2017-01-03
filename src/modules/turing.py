@@ -10,6 +10,7 @@ class turing(Module):
                 lstm_size, shift = 1):
         self._mem_shape = (memory_size, vec_size)
         self._mem = np.ones(self._mem_shape) * .1
+        # self._mem = np.random.rand(*self._mem_shape) * .1
         self._read_size = (vec_size,)
         self._h_shape = (lstm_size,)
         self._w_shape = (memory_size,)

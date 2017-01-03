@@ -40,6 +40,25 @@ class batch_slice(Module):
         base_grad[self._indices] = grad
         return base_grad
 
+class dynamic_slice(Module):
+    def __init__(self, server, xshape, start, end, axis = 0):
+        self._axis = axis
+        self._out_shape = xshape
+    
+    def forward(self, x, start, end):
+        rank = len(x.shape)
+        slices = [slice(None, None)] * rank
+        slices[self._axis + 1] = slice(start, end)
+        slices = tuple(slices)
+        self._xshape = x.shape
+        self._slices = slices
+        result = x[slices]
+        return result
+    
+    def backward(self, grad):
+        g = np.zeros(self._xshape)
+        g[self._slices] = grad
+        return g
 
 class slices(Module):
     def __init__(self, _, inp_shape, item):

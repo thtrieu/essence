@@ -32,6 +32,7 @@ _module_class_factory = dict({
 	'batch_slice': batch_slice,
 	'turing': turing,
 	'logistic': logistic,
+	'dynamic_slice': dynamic_slice
 })
 
 def module_class_factory(name):

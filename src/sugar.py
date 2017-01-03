@@ -67,6 +67,9 @@ def softmax(self, x):
 def l2(self, x, t):
     return self._x('l2', x, t)
 
+def dynamic_slice(self, x, start = None, end = None, axis = 0):
+    return self._x('dynamic_slice', x, start, end, axis)
+
 def l2_regularize(self, w, center = 0.):
     return self._x('l2', w, center)
 
