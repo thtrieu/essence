@@ -34,7 +34,7 @@ class RMSPropOptimizer(Optimizer):
         self._moments = dict()
     
     def _rule(self, v, g):
-        #g = np.clip(g, -10., 10.)
+        g = np.clip(g, -10., 10.)
         c = self._current
         m = self._moments
         if c not in m:
