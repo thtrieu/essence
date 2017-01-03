@@ -1,8 +1,20 @@
 from module import Module
 from rnn_step import ntm_step
 from src.utils import nxshape, guass, xavier, randint
+from src.utils import turing_plot
 import numpy as np
 import cPickle as pickle
+
+def pp(x):
+    r = str()
+    for row in x.round():
+        rstr = str()
+        for col in row:
+            if col > 0: rstr += 'X'
+            else: rstr += '_'
+        if 'X' in rstr: r += rstr + '\n'
+    return r
+
 
 class turing(Module):
     def __init__(self, server, x_shape, out_size, 
@@ -30,7 +42,7 @@ class turing(Module):
         
         # Loop through time
         result = list()
-        write_list = list(); read_list = list()
+        #write_list = list(); read_list = list()
         for t in range(x.shape[1]):
             x_t = x[:, t, :]
             c, h_new, w_read, w_write, \
@@ -38,23 +50,15 @@ class turing(Module):
             self._step.forward(
                 c, h, x[:, t, :], w_read, 
                 w_write, mem_read, memory)
-            write_list.append(w_write)
-            read_list.append(w_read)
+            # write_list.append(w_write)
+            # read_list.append(w_read)
             result.append(readout)
 
-        write_list = np.concatenate(write_list, 0).T
-        read_list = np.concatenate(read_list, 0).T
-        result = np.stack(result, 1)[0]
-        def pp(x):
-            r = str()
-            for row in x.round():
-                for col in row:
-                    if col > 0: r += 'X'
-                    else: r += '_'
-                r += '\n'
-            return r
-        print pp(read_list)
-        return np.array([result])
+        result = np.stack(result, 1)
+        # write_w = np.concatenate(write_list, 0)
+        # read_w = np.concatenate(read_list, 0)
+        # turing_plot(x[0], result[0], write_w, read_w)
+        return result
 
     def backward(self, grad):
         gread = np.zeros(nxshape(grad, self._read_size))

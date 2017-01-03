@@ -2,13 +2,13 @@
 
 ### essence
 
-Is an on-going project that builds auto-differentiable, directed-acyclic computational-graph using `numpy`, with occasional falls back to `C` whenever perfomance is demanded. The interface is inspired by `Tensorflow`. Currenly the project supports CPU only.
+An directed acyclic computational graph builder, built from scratch on `numpy` and `C`, with auto-differentiation and gradient unit testing.
 
-Current working layers: fully connected, convolution, dropout, batch normalization, long short term memory
+Current working modules: fully connected, convolution, dropout, batch normalization, **LSTM, and Neural Turing Machine, copy task** (see code in four demos below).
 
-TODO: Augmented memory RNN: namely a Neural Turing Machine (should be cool).
+TODO: GAN, although I need to improve my implementation of `im2col` and `gemm` for `conv` module.
 
-*Motivation:* if there is one algorithm to understand in Deep Learning, that might be Back Propagation. Not chaining derivaties on the paper but actually implement it, experience yourself the vanishing/exploding gradients, witness numerical underflow/overflow in cross-entropy softmax or see the *linear carousel* as one solid line in your code is just wonderful.
+*Motivation:* if there is one algorithm to understand in Deep Learning, that might be Back Propagation. Not chaining derivaties on paper but the actual implementation of it, see for yourself vanishing/exploding gradients, numerical underflow/overflow and then being able to solve them is just wonderful.
 
 ### Test 1: MNIST with depth-2 MLP, relu, dropout & train with SGD.
 
@@ -106,6 +106,31 @@ net.optimize(regularized_loss, 'adam', 1e-3)
 ```
 
 The test accuracy was **85%** while training overfit to **98%**, this tells more regularization is needed, however this is enough for a demonstration as I need to move on for the next thing.
+
+### Test 4: Neural Turing Machine, copy task
+
+A snippet from `turing-copy`
+
+```python
+net = Net()
+x = net.portal((inp_dim,))
+y = net.portal((inp_dim,))
+y = net.reshape(y, [-1, inp_dim], over_batch = True)
+ntm_out = net.turing(x, out_dim, mem_size, vec_size,
+                     hid_dim, shift = 1)
+
+start, end = net.portal(), net.portal()
+copy = net.dynamic_slice(
+    ntm_out, start = start, end = end, axis = 0)
+logits = net.reshape(copy, [-1, inp_dim], over_batch = True)
+
+loss = net.logistic(logits, y)
+net.optimize(loss, 'adam', 1e-4)
+```
+Test result on length 70:
+
+![img](turing.png)
+
 
 ### License
 GPL 3.0 (see License in this repo)
