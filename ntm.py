@@ -33,7 +33,7 @@ def generate_random_input(batch, seq_length, inp_dim):
     x[:, :, :2] = np.zeros(x[:, :, :2].shape)
     return x, np.zeros(x.shape) 
 
-net.load_checkpoint('trial149')
+#net.load_checkpoint('trial149')
 
 save_every = 150
 for count in xrange(epoch):

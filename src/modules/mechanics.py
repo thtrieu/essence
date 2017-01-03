@@ -55,7 +55,6 @@ class interpolate(Recurring):
     def forward(self, new, prev, alpha):
         self._push(new, prev, alpha)
         result = alpha * new + (1. - alpha) * prev
-        self.unit_test([alpha, new, prev], result)
         return result
     
     def backward(self, grad):
@@ -78,7 +77,8 @@ class circular_conv(Recurring):
         for p in patches:
             col = (kernel * p).sum(-1, keepdims = True)
             cols.append(col)
-        return np.concatenate(cols, 1)
+        result = np.concatenate(cols, 1)
+        return result
 
     def backward(self, grad):
         patches, kernel, k = self._pop()

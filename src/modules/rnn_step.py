@@ -65,15 +65,16 @@ class ntm_step(Recurring):
 
     def forward(self, c, h, x, w_read, w_write, mem_read, memory):
         mx = np.concatenate([mem_read, x], 1)
-        c, h = self._control.forward(c, h, mx)
-        w_read = self._rhead.forward(memory, h, w_read)
-        w_write = self._whead.forward(memory, h, w_write)
-        mem_read, new_mem = self._memory.forward(
-            h, w_read, w_write, memory)
-        readout = self._readout.forward(h)
-        recurlets = (c, h, w_read, w_write, \
-                     mem_read, new_mem)
-        return recurlets, readout
+        c_new, h_new = self._control.forward(c, h, mx)
+        new_w_read = self._rhead.forward(memory, h_new, w_read)
+        new_w_write = self._whead.forward(memory, h_new, w_write)
+        new_mem_read, new_memory = self._memory.forward(
+            h_new, new_w_read, new_w_write, memory)
+        readout = self._readout.forward(h_new)
+        # self.unit_test([c, h, x, w_read, w_write, mem_read, memory],
+        #     [c_new, h_new, new_w_read, new_w_write, new_mem_read, new_memory, readout])
+        return c_new, h_new, new_w_read, new_w_write, \
+               new_mem_read, new_memory, readout
     
     def backward(self, gc, gh, gr, gw, gread, gm, gout):
         """
@@ -84,7 +85,7 @@ class ntm_step(Recurring):
         # grad flow through readout
         g_hout = self._readout.backward(gout)
         # grad flow through memory
-        gm, gm_r, gm_w, gm_h = \
+        gm_h, gm_r, gm_w, gm = \
             self._memory.backward(gread, gm)
         # grad flow through write & read attention
         gw_m, gw_h, gw = self._whead.backward(gw + gm_w)
@@ -96,4 +97,4 @@ class ntm_step(Recurring):
         gx = gx[:, self._vec_size:]
         # grad summation
         gm = gm + gr_m + gw_m
-        return gc, gh, gr, gw, gread, gm, gx
+        return gc, gh, gx, gr, gw, gread, gm

@@ -48,4 +48,4 @@ class ntm_memory(Recurring):
         gm = gm + ge_m
         gw = g_ew + g_aw
         gh = g_he + g_ha
-        return gm, gr, gw, gh
+        return gh, gr, gw, gm

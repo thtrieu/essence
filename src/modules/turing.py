@@ -32,17 +32,13 @@ class turing(Module):
         result = list()
         for t in range(x.shape[1]):
             x_t = x[:, t, :]
-            recurlets, readout = \
-                self._step.forward(
+            c, h_new, w_read, w_write, \
+            mem_read, memory, readout = \
+            self._step.forward(
                     c, h, x[:, t, :], w_read, 
                     w_write, mem_read, memory)
-            c, h_new, w_read, w_write, \
-            mem_read, memory = recurlets
             result.append(readout)
         return np.stack(result, 1)
-    
-    def unitest(self, x):
-        return self.forward(x)
 
     def backward(self, grad):
         gread = np.zeros(nxshape(grad, self._read_size))
@@ -55,7 +51,7 @@ class turing(Module):
         gradx = list();
         for t in range(grad.shape[1] - 1, -1, -1):
             grad_t = grad[:, t, :]
-            gc, gh, gr, gw, gread, gmem, gx_t = \
+            gc, gh, gx_t, gr, gw, gread, gmem = \
                 self._step.backward(
                     gc, gh, gr, gw,
                     gread, gmem, grad_t)
