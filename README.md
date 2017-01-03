@@ -2,7 +2,7 @@
 
 ### essence
 
-An directed acyclic computational graph builder, built from scratch on `numpy` and `C`, with auto-differentiation and gradient unit testing.
+A directed acyclic computational graph builder, built from scratch on `numpy` and `C`, with auto-differentiation and gradient unit testing.
 
 Current working modules: fully connected, convolution, dropout, batch normalization, **LSTM, and Neural Turing Machine, copy task** (see code in four demos below).
 
@@ -109,7 +109,7 @@ The test accuracy was **85%** while training overfit to **98%**, this tells more
 
 ### Test 4: Neural Turing Machine, copy task
 
-A snippet from `turing-copy`
+A snippet from `turing-copy.py`
 
 ```python
 net = Net()
