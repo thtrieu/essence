@@ -54,6 +54,7 @@ class AdamOptimizer(Optimizer):
         self._moments = dict()
     
     def _rule(self, v, g):
+        g = np.clip(g, -5., 5.)
         c = self._current
         m = self._moments
         if c not in m:

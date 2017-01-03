@@ -10,7 +10,6 @@ class turing(Module):
                 lstm_size, shift = 1):
         self._mem_shape = (memory_size, vec_size)
         self._mem = np.ones(self._mem_shape) * .1
-        # self._mem = np.random.rand(*self._mem_shape) * .1
         self._read_size = (vec_size,)
         self._h_shape = (lstm_size,)
         self._w_shape = (memory_size,)
@@ -31,15 +30,31 @@ class turing(Module):
         
         # Loop through time
         result = list()
+        write_list = list(); read_list = list()
         for t in range(x.shape[1]):
             x_t = x[:, t, :]
             c, h_new, w_read, w_write, \
             mem_read, memory, readout = \
             self._step.forward(
-                    c, h, x[:, t, :], w_read, 
-                    w_write, mem_read, memory)
+                c, h, x[:, t, :], w_read, 
+                w_write, mem_read, memory)
+            write_list.append(w_write)
+            read_list.append(w_read)
             result.append(readout)
-        return np.stack(result, 1)
+
+        write_list = np.concatenate(write_list, 0).T
+        read_list = np.concatenate(read_list, 0).T
+        result = np.stack(result, 1)[0]
+        def pp(x):
+            r = str()
+            for row in x.round():
+                for col in row:
+                    if col > 0: r += 'X'
+                    else: r += '_'
+                r += '\n'
+            return r
+        print pp(read_list)
+        return np.array([result])
 
     def backward(self, grad):
         gread = np.zeros(nxshape(grad, self._read_size))
