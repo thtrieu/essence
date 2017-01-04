@@ -39,9 +39,8 @@ def generate_random_input(batch, seq_length, inp_dim):
 max_seq_len = [5, 10, 15, 20, 25, 30]
 epoch_num = [2048, 2048, 4096, 4096, 8192, 8192]
 save_every = 500
-for i in range(4):
-    max_seq = max_seq_len[i]
-    epoch = epoch_num[i]
+
+for max_seq, epoch in zip(max_seq_len, epoch_num):
     for count in xrange(epoch):
         length = np.random.randint(max_seq) + 1
         inp, zeros = generate_random_input(batch, length, inp_dim)
