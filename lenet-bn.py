@@ -62,8 +62,8 @@ for count in range(5):
         truth = target.argmax(1)
         accuracy = np.equal(predict, truth).mean()
 
-        print 'Step {} Loss {} Accuracy {}'.format(
-            i+1 + count*batch_num, cost, accuracy)
+        print('Step {} Loss {} Accuracy {}'.format(
+            i+1 + count*batch_num, cost, accuracy))
 
 
 predict = net.forward([fc2], {
@@ -73,4 +73,4 @@ predict = net.forward([fc2], {
 true_labels = mnist_data.test.labels.argmax(1)
 pred_labels = predict.argmax(1)
 accuracy = np.equal(true_labels, pred_labels).mean()
-print 'Accuracy on test set:', accuracy
+print('Accuracy on test set:', accuracy)

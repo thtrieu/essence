@@ -1,11 +1,11 @@
-from module import portal, variable, constant, lookup
-from activations import *
-from losses import *
-from signatures import *
-from common import *
-from shaping import *
-from lstm import lstm
-from turing import turing
+from .module import portal, variable, constant, lookup
+from .activations import *
+from .losses import *
+from .signatures import *
+from .common import *
+from .shaping import *
+from .lstm import lstm
+from .turing import turing
 
 _module_class_factory = dict({
 	'portal': portal,

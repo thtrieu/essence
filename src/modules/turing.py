@@ -1,9 +1,8 @@
-from module import Module
-from rnn_step import ntm_step
+from .module import Module
+from .rnn_step import ntm_step
 from src.utils import nxshape, guass, xavier, randint
 from src.utils import turing_plot
 import numpy as np
-import cPickle as pickle
 
 class turing(Module):
     def __init__(self, server, x_shape, out_size, 
@@ -20,6 +19,7 @@ class turing(Module):
             lstm_size, shift, out_size)
 
     def forward(self, x):
+        self._step.flush()
         memory = np.array([self._mem] * x.shape[0])
         h = np.zeros(nxshape(x, self._h_shape))
         w_read = np.zeros(nxshape(x, self._w_shape))
@@ -39,7 +39,7 @@ class turing(Module):
                 c, h, x[:, t, :], w_read, 
                 w_write, mem_read, memory)
             result.append(readout)
-
+        
         result = np.stack(result, 1)
         return result
 
@@ -56,7 +56,7 @@ class turing(Module):
             grad_t = grad[:, t, :]
             gc, gh, gx_t, gr, gw, gread, gmem = \
                 self._step.backward(
-                    gc, gh, gr, gw,
-                    gread, gmem, grad_t)
+                    gc, gh, gr, gw, gread, gmem, grad_t)
             gradx = [gx_t] + gradx
+            
         return np.stack(gradx, 1)

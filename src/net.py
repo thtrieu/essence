@@ -1,6 +1,6 @@
-from server import ParameterServer
-from graph import DAG
-import sugar
+from src.server import ParameterServer
+from src.graph import DAG
+import src.sugar as sugar
 
 class Net(object):
     # Sugar syntax
@@ -9,7 +9,7 @@ class Net(object):
         self._finalized = False
         self._dagraph = DAG()
         coated = sugar.__dict__
-        for name, fun in coated.iteritems():
+        for name, fun in coated.items():
             if callable(fun): setattr(Net, name, fun)
  
     # To be sugar coated
@@ -38,5 +38,5 @@ class Net(object):
     def save_checkpoint(self, file_name):
         self._server.save(file_name)
 
-    def load_checkpoint(self, file_name):
-        self._server.load(file_name)
+    def load_checkpoint(self, file_name, *args, **kwargs):
+        self._server.load(file_name, *args, **kwargs)

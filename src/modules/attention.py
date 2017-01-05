@@ -1,6 +1,6 @@
-from recurring import Recurring, gate
-from activations import softplus, tanh, sigmoid, softmax, relu
-from mechanics import * 
+from .recurring import Recurring, gate
+from .activations import softplus, tanh, sigmoid, softmax, relu
+from .mechanics import * 
 
 class ntm_attend(Recurring):
     def _setup(self, server, lstm_size, vec_size, shift):
@@ -19,6 +19,12 @@ class ntm_attend(Recurring):
             'rotate': circular_conv(), # circular conv
             'sharp': sharpen(), # sharpen
         })
+    
+    def _flush(self):
+        for g in self._gates:
+            self._gates[g].flush()
+        for m in self._mechanic:
+            self._mechanic[m].flush()
     
     def forward(self, memory, lstm_h, w_prev):
         gates_vals = list()

@@ -1,14 +1,18 @@
-from recurring import Recurring, gate
+from .recurring import Recurring, gate
 import numpy as np
-from activations import *
+from .activations import *
 
 class ntm_memory(Recurring):
     def _setup(self, server, lstm_size, mem_size, vec_size):
         self._size = (mem_size, vec_size)
         self._gates = dict({
-            'f': gate(server, (lstm_size, vec_size), None, sigmoid), # forget
+            'f': gate(server, (lstm_size, vec_size), 1.5, sigmoid), # forget
             'a': gate(server, (lstm_size, vec_size), None, tanh) # add
         })
+    
+    def _flush(self):
+        self._gates['f'].flush()
+        self._gates['a'].flush()
     
     def forward(self, h_lstm, w_read, w_write, memory):
         # read

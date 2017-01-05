@@ -15,7 +15,7 @@ class GradientChecker(object):
     @classmethod
     def check(cls, module, args, outputs):
         if module == cls.current: return
-        print 'Checking', module
+        print('Checking', module)
         cls.current = module
         outputs = cls.tolist(outputs)
         for out_idx in range(len(outputs)):
@@ -34,7 +34,7 @@ class GradientChecker(object):
         inp_grads = module.backward(*out_grads)
         if inp_grads is None: return
 
-        print '\tChecking w.r.t output #', out_idx
+        print('\tChecking w.r.t output #', out_idx)
         inp_grads = cls.tolist(inp_grads)
         for inp_idx, inp_grad in enumerate(inp_grads):
             if type(inp_grad) is np.ndarray:
@@ -45,7 +45,7 @@ class GradientChecker(object):
     @classmethod
     def check_against_input(cls, module, args, inp_idx, 
                             grad, out_idx, y):
-        print '\t\tChecking input #', inp_idx
+        print('\t\tChecking input #', inp_idx)
 
         x = args[inp_idx]; relates = list()
         assert x.shape == grad.shape, \
@@ -69,14 +69,11 @@ class GradientChecker(object):
             grad_pick /= (2. * cls.epsilon)
 
             if grad_pick == grad[pick]: 
-                print '\t\t', grad_pick, grad[pick]
+                print('\t\t', grad_pick, grad[pick])
                 continue
-            if grad_pick * grad[pick] == 0. and \
-                max(abs(grad_pick), abs(grad[pick])) < 1e-15:
-                print '\t\tfine'
             relate = abs(grad_pick - grad[pick])
             relate /= max(abs(grad_pick), abs(grad[pick]))
-            print '\t\t', grad_pick, grad[pick], relate
+            print('\t\t', grad_pick, grad[pick], relate)
             relates.append(relate)
 
         if len(relates) == 0: return

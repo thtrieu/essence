@@ -1,7 +1,6 @@
-from conv import c_conv2d, c_gradk, c_gradx
-from conv import c_xpool2, c_gradxp2
+from .conv import c_conv2d, c_gradk, c_gradx, c_xpool2, c_gradxp2
 from src.utils import nxshape
-from module import Module
+from .module import Module
 import numpy as np
 
 class matmul(Module):
@@ -33,8 +32,8 @@ class conv(Module):
             h, w, f, ph, pw, 
             f_, kh, kw, sh, sw]
 
-        h_ = (h + 2*ph - kh) / sh + 1
-        w_ = (h + 2*pw - kw) / sw + 1
+        h_ = (h + 2*ph - kh) // sh + 1
+        w_ = (h + 2*pw - kw) // sw + 1
         self._out_shape = [h_, w_, f_]
 
     def forward(self, x, k):
@@ -60,7 +59,7 @@ class maxpool2x2(Module):
         self._inp_shape = inp_shape
         assert not h % 2 or not w % 2, \
         'pool2x2 on odd size not supported'
-        self._out_shape = [h/2, w/2, f]
+        self._out_shape = [h // 2, w // 2, f]
 
     def forward(self, x):
         pooled = np.zeros(nxshape(x, self._out_shape))

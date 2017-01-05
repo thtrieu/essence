@@ -1,4 +1,4 @@
-from module import Module
+from .module import Module
 from src.utils import binomial, nxshape
 import numpy as np
 

@@ -1,5 +1,5 @@
 import numpy as np
-from module import Module
+from .module import Module
 
 class Activate(Module):
     def __init__(self, _, inp_shape):

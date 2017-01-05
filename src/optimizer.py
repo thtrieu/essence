@@ -1,5 +1,5 @@
 import numpy as np
-from utils import extract
+from .utils import extract
 
 class Optimizer(object):
     def __init__(self, lr = 1e-3, *args, **kwargs):

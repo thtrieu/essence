@@ -1,7 +1,7 @@
-from module import Module
+from .module import Module
 from src.utils import xavier, guass
 import numpy as np
-from activations import *
+from .activations import *
 
 class Recurring(Module):
     """
@@ -30,6 +30,9 @@ class Recurring(Module):
     
     def flush(self):
         self._stack = list()
+        self._flush()
+    
+    def _flush(self): pass
 
 class gate(Recurring):
     """ 

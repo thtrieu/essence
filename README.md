@@ -14,7 +14,7 @@ A directed acyclic computational graph builder, built from scratch on `numpy` an
 
 3. `lstm-embed.py`: LSTM on word embeddings for Vietnamese Question classification + Dropout + L2 weight decay. 85% on test set and 98% on training set (overfit).
 
-4. `turing-copy`: A neural turing machine, with copy task. Test result on length 70:
+4. `turing-copy`: A neural turing machine with LSTM controller. Test result on copy task length 70:
 
 ![img](turing.png)
 

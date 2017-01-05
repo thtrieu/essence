@@ -1,4 +1,4 @@
-from recurring import Recurring
+from .recurring import Recurring
 import numpy as np
 
 class norm(Recurring):
@@ -20,6 +20,10 @@ class cosine_sim(Recurring):
     def _setup(self):
         self._knorm = norm()
         self._mnorm = norm()
+    
+    def _flush(self):
+        self._knorm.flush()
+        self._mnorm.flush()
 
     def forward(self, memory, key):
         knorm = self._knorm.forward(key)
@@ -66,11 +70,11 @@ class interpolate(Recurring):
     
 class circular_conv(Recurring):
     def forward(self, x, kernel):
-        s = kernel.shape[1] / 2
+        s = kernel.shape[1] // 2
         k = np.arange(-s, s + 1)
         patches = list()
         M = x.shape[-1]
-        for i in xrange(M):
+        for i in range(M):
             patches += [x[:, (k + i) % M]]
         self._push(patches, kernel, k)
         cols = list()
@@ -85,7 +89,7 @@ class circular_conv(Recurring):
         M = grad.shape[-1]
         gradx = np.zeros(grad.shape)
         gradk = np.zeros(kernel.shape)
-        for i in xrange(M):
+        for i in range(M):
             gi = grad[:, i][:, None]
             gradx[:, (k + i) % M] += gi * kernel
             gradk += gi * patches[i]
@@ -121,6 +125,10 @@ class sharpen(Recurring):
     def _setup(self):
         self._amp = amplify()
         self._ave = average()
+    
+    def _flush(self):
+        self._amp.flush()
+        self._ave.flush()
 
     def forward(self, x, gamma):
         xpow = self._amp.forward(x, gamma)

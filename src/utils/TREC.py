@@ -2,7 +2,7 @@ import numpy as np
 import re
 import itertools
 from collections import Counter
-import cPickle as pickle
+import pickle
 import os
 
 def _clean_str_vn(string):
@@ -52,7 +52,7 @@ def _load_trained_vecs(vocabulary):
             pickle.dump([trained_vecs], f, protocol=-1)
     else:
         with open(folder_prefix + 'trained_vecs.PICKLE', 'rb') as f:
-            trained_vecs = pickle.load(f)[0]
+            trained_vecs = pickle.load(f, encoding = 'latin1')[0]
     return trained_vecs
 
 def _pad_sentences(sentences, padding_word="<PAD/>"):
@@ -114,7 +114,7 @@ def _load_bin_vec(fname, vocab):
         header = f.readline()
         vocab_size, layer1_size = map(int, header.split())
         binary_len = np.dtype(np.float64).itemsize * layer1_size
-        for line in xrange(vocab_size):
+        for line in range(vocab_size):
             word = []
             while True:
                 ch = f.read(1)

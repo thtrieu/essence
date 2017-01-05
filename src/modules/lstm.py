@@ -1,9 +1,8 @@
 import numpy as np
-from module import Module
+from .module import Module
 from src.utils import xavier, guass, nxshape, rand
-from activations import *
-from rnn_step import lstm_step       
-from gradcheck import GradientChecker 
+from .activations import *
+from .rnn_step import lstm_step
 
 class lstm(Module):
     """ BASIC Long Short Term Memory """
@@ -17,6 +16,7 @@ class lstm(Module):
 
     def forward(self, x, lens = None):
         # create mask for lens
+        self._step.flush()
         full_len = x.shape[1]
         if lens is not None:
             lens = np.array(lens) - 1.0

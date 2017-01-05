@@ -1,6 +1,6 @@
-from optimizer import optimizer_factory
-from slot import VariableSlot, MovingVariableSlot
-import cPickle as pickle
+from src.optimizer import optimizer_factory
+from src.slot import VariableSlot, MovingVariableSlot
+import pickle as pickle
 
 class ParameterServer(object):
     """
@@ -38,9 +38,10 @@ class ParameterServer(object):
             pickle.dump(
                 [self._slots, self._optimizer], f, protocol = -1)
         
-    def load(self, file_name):
+    def load(self, file_name, *args, **kwargs):
         with open(file_name, 'rb') as f:
-            slots, self._optimizer = pickle.load(f)
+            slots, self._optimizer = \
+                pickle.load(f, *args, **kwargs)
         assert len(slots) == len(self._slots)
         for i, slot in enumerate(self._slots):
             slot.load(slots[i])

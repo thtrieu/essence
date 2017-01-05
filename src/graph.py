@@ -1,6 +1,6 @@
-from modules import module_class_factory
-from utils import parse_for
-from node import Node
+from .modules import module_class_factory
+from .utils import parse_for
+from .node import Node
 
 class ptr(object):
     pass            

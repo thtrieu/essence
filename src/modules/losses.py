@@ -1,4 +1,4 @@
-from module import Module
+from .module import Module
 import numpy as np
 
 class Loss(Module):

@@ -37,7 +37,7 @@ for count in range(30):
 			target: lab,
 			keep_prob: .5,
 		})[0]
-	print 'Epoch {} loss {}'.format(count, loss)
+	print('Epoch {} loss {}'.format(count, loss))
 	
 print('Total time elapsed: {}'.format(time.time() - s))
 
@@ -45,5 +45,5 @@ bias_out = net.forward([bias], {image:mnist_data.test.images})[0]
 true_labels = mnist_data.test.labels.argmax(1)
 pred_labels = bias_out.argmax(1)
 accuracy = np.equal(true_labels, pred_labels).mean()
-print accuracy
+print('Accuracy on test set', accuracy)
 

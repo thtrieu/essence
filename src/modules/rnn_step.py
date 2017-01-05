@@ -1,7 +1,7 @@
-from rnn_mem import ntm_memory
-from attention import ntm_attend
-from recurring import Recurring, gate
-from activations import *
+from .rnn_mem import ntm_memory
+from .attention import ntm_attend
+from .recurring import Recurring, gate
+from .activations import *
 import numpy as np
 
 # TODO: make all the steps 
@@ -20,6 +20,10 @@ class lstm_step(Recurring):
             'g': gate(server, w_shp, None, tanh) })
         self._out_shape = (hidden_size,)
         self._size = hidden_size
+    
+    def _flush(self):
+        for gate_name in self._gates:
+            self._gates[gate_name].flush()
     
     def forward(self, c, h, x):
         hx = np.concatenate([h, x], 1)
@@ -62,6 +66,13 @@ class ntm_step(Recurring):
         self._whead = ntm_attend(server, lstm_size, vec_size, shift)
         self._memory = ntm_memory(server, lstm_size, mem_size, vec_size)
         self._readout = gate(server, (lstm_size, out_size), None, sigmoid)
+    
+    def _flush(self):
+        self._control.flush()
+        self._rhead.flush()
+        self._whead.flush()
+        self._memory.flush()
+        self._readout.flush()
 
     def forward(self, c, h, x, w_read, w_write, mem_read, memory):
         mx = np.concatenate([mem_read, x], 1)

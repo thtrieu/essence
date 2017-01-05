@@ -28,7 +28,7 @@ copy = net.dynamic_slice(
 logits = net.reshape(copy, [-1, inp_dim], over_batch = True)
 
 loss = net.logistic(logits, y)
-net.optimize(loss, 'adam', 1e-4)
+net.optimize(loss, 'adam', 1e-2)
 
 
 def generate_random_input(batch, seq_length, inp_dim):
@@ -41,7 +41,7 @@ epoch_num = [2048, 2048, 4096, 4096, 8192, 8192]
 save_every = 500
 
 for max_seq, epoch in zip(max_seq_len, epoch_num):
-    for count in xrange(epoch):
+    for count in range(epoch):
         length = np.random.randint(max_seq) + 1
         inp, zeros = generate_random_input(batch, length, inp_dim)
         
@@ -56,9 +56,9 @@ for max_seq, epoch in zip(max_seq_len, epoch_num):
         pred = pred.round()
         acc = np.equal(pred, inp.reshape([-1, inp_dim]))
         acc = acc.astype(np.float64).mean()
-        print 'Step {} Loss {} Len/Acc {}/{}'.format(
-            count, loss, length, acc)
+        print('Step {} Loss {} Len/Acc {}/{}'.format(
+            count, loss, length, acc))
 
         if (count + 1) % save_every == 0:
-            print 'saving to ckpt{}'.format(count)
+            print('saving to ckpt{}'.format(count))
             net.save_checkpoint('ckpt{}'.format(count))
