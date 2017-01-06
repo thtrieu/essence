@@ -67,3 +67,24 @@ class softmax(Activate):
         m = np.multiply(grad, a)
         g = grad - m.sum(1, keepdims = True)
         return np.multiply(g, a)
+
+class hard_sigmoid(Activate):
+    def transform(self, x):
+        self.activation = np.clip(
+            x * .2 + .5, 0., 1.)
+    
+    def backward(self, grad):
+        a = self.activation
+        mask = (a > 0.) * (a < 1.)
+        return grad * mask * .2
+
+
+activation_dict = {
+    'tanh': tanh,
+    'softplus': softplus,
+    'softmax': softmax,
+    'linear': linear,
+    'relu': relu,
+    'sigmoid': sigmoid,
+    'hard_sigmoid': hard_sigmoid,
+}

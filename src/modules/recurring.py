@@ -37,18 +37,21 @@ class Recurring(Module):
 class gate(Recurring):
     """ 
     Gates are special case of Recurring modules
-    It starts with a linear transformation
-    And end with an activation
+    It starts with a linear transformation (matmul)
+    And ends with a (typically) nonlinear activation
     """
-    def _setup(self, server, w_shape, 
-               bias = None, act_class = sigmoid):
-        b_shape = (w_shape[-1],)
+    def _setup(self, server, w_shape, bias = None, 
+               act_class = sigmoid, transfer = None):
+        if transfer is None:
+            b_shape = (w_shape[-1],)
+            w_init = xavier(w_shape)
+            if bias is not None:
+                b_init = np.ones(b_shape) * bias
+            elif bias is None:
+                b_init = guass(0., 1e-1, b_shape)
+        else: w_init, b_init = transfer
+        
         self._act_class = act_class
-        w_init = xavier(w_shape)
-        if bias is not None:
-            b_init = np.ones(b_shape) * bias
-        elif bias is None:
-            b_init = guass(0., 1e-1, b_shape)
         self._w = server.issue_var_slot(w_init, True)
         self._b = server.issue_var_slot(b_init, True)
     

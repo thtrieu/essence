@@ -4,20 +4,26 @@ from .recurring import Recurring, gate
 from .activations import *
 import numpy as np
 
-# TODO: make all the steps 
-# available to end users
+# TODO: make all the steps available to end users
         
 class lstm_step(Recurring):
     def _setup(self, server, inp_shape, 
-               hidden_size, forget_bias):
+               hidden_size, forget_bias, 
+               gate_activation, 
+               read_activation, 
+               transfer):
+
         _, emb = inp_shape
         w_shp = (hidden_size + emb, hidden_size)
+        if transfer is None: transfer = [None] * 4
+        gact = activation_dict[gate_activation]
+        ract = activation_dict[read_activation]
         self._gates = dict({
             # gate args: server, shape, bias, act
-            'f': gate(server, w_shp, forget_bias),
-            'i': gate(server, w_shp, None, sigmoid),
-            'o': gate(server, w_shp, None, sigmoid),
-            'g': gate(server, w_shp, None, tanh) })
+            'f': gate(server, w_shp, forget_bias, gact, transfer[0]),
+            'i': gate(server, w_shp, None, gact, transfer[1]),
+            'o': gate(server, w_shp, None, gact, transfer[2]),
+            'g': gate(server, w_shp, None, ract, transfer[3]) })
         self._out_shape = (hidden_size,)
         self._size = hidden_size
     
@@ -82,8 +88,6 @@ class ntm_step(Recurring):
         new_mem_read, new_memory = self._memory.forward(
             h_new, new_w_read, new_w_write, memory)
         readout = self._readout.forward(h_new)
-        # self.unit_test([c, h, x, w_read, w_write, mem_read, memory],
-        #     [c_new, h_new, new_w_read, new_w_write, new_mem_read, new_memory, readout])
         return c_new, h_new, new_w_read, new_w_write, \
                new_mem_read, new_memory, readout
     

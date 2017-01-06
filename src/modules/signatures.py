@@ -20,7 +20,7 @@ class matmul(Module):
 
 
 class conv(Module):
-    def __init__(self, serve, x_shape, k_shape, pad, stride):
+    def __init__(self, server, x_shape, k_shape, pad, stride):
         kh, kw, f, f_ = k_shape
         self._kshape = k_shape
         self._xshape = x_shape
@@ -46,7 +46,6 @@ class conv(Module):
     def backward(self, grad):
         gk = np.zeros(self._kshape)
         c_gradk(self._x, gk, grad, *self._args)
-        
         xshp = nxshape(grad, self._xshape)
         gx = np.zeros(xshp)
         c_gradx(gx, self._k, grad, *self._args)

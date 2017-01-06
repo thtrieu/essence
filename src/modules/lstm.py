@@ -8,10 +8,12 @@ class lstm(Module):
     """ BASIC Long Short Term Memory """
 
     def __init__(self, server, inp_shape, lens_shape, 
-                hidden_size, forget_bias):
-        # TODO: avoid stacking gates too high.
+                hidden_size, forget_bias, 
+                gate_activation, read_activation, 
+                transfer):
         self._step = lstm_step(
-            server, inp_shape, hidden_size, forget_bias)
+            server, inp_shape, hidden_size, forget_bias, 
+            gate_activation, read_activation, transfer)
         self._out_shape = (inp_shape[0], hidden_size)
 
     def forward(self, x, lens = None):

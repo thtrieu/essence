@@ -2,6 +2,57 @@ from .module import Module
 from src.utils import nxshape
 import numpy as np
 
+class concat(Module):
+    def __init__(self, server, *args):
+        args = list(args)
+        axis = args[-1]
+        shapes = args[:-1]
+        new_size = sum(x[axis] for x in shapes)
+        shapes = [list(shp) for shp in shapes]
+        for shp in shapes: shp[axis] = None
+        
+        assert shapes[1:] == shapes[:-1], \
+        'All other size must be equal when concatenate'
+        self._axis = axis + 1
+        
+        new_shp = shapes[0]
+        new_shp[axis] = new_size
+        new_shp = tuple(new_shp)
+        self._out_shape = new_shp
+
+    def forward(self, *args):
+        inputs = list(args)
+        self._sizes = [
+            x.shape[self._axis] \
+            for x in inputs]
+        return np.concatenate(
+            inputs, self._axis)
+    
+    def backward(self, grad): # not tested
+        returns = list()
+        rank = len(grad.shape)
+        slices = [slice(None)] * rank
+
+        offset = int(0)
+        for size in self._sizes:
+            slices[self._axis] = \
+                slice(offset, offset + size)
+            returns.append(grad[slices])
+            offset = offset + size
+        return returns
+
+class transpose(Module):
+    def __init__(self, server, x_shape, trans):
+        self._out_shape = np.array(x_shape)[trans]
+        self._trans = np.array([-1] + trans) + 1
+
+    def forward(self, x):
+        return x.transpose(self._trans)
+    
+    def backward(self, grad): # not tested
+        return grad.transpose(
+            np.argsort(self._trans))
+
 class reshape(Module):
     def __init__(self, server, x_shape, new_shape, 
                  over_batch = False):
@@ -41,13 +92,13 @@ class batch_slice(Module):
         return base_grad
 
 class dynamic_slice(Module):
-    def __init__(self, server, xshape, start, end, axis = 0):
+    def __init__(self, server, xshape, start, end, axis):
         self._axis = axis
         self._out_shape = xshape
     
     def forward(self, x, start, end):
         rank = len(x.shape)
-        slices = [slice(None, None)] * rank
+        slices = [slice(None)] * rank
         slices[self._axis + 1] = slice(start, end)
         slices = tuple(slices)
         self._xshape = x.shape

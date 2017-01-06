@@ -17,6 +17,7 @@ _module_class_factory = dict({
 	'drop': drop,
 	'linear': linear,
 	'relu': relu,
+	'tanh': tanh,
 	'bias': add_biases,
 	'dot': matmul,
 	'batchnorm': batch_norm,
@@ -32,7 +33,9 @@ _module_class_factory = dict({
 	'batch_slice': batch_slice,
 	'turing': turing,
 	'logistic': logistic,
-	'dynamic_slice': dynamic_slice
+	'dynamic_slice': dynamic_slice,
+	'transpose': transpose,
+	'concat': concat
 })
 
 def module_class_factory(name):

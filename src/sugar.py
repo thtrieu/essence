@@ -7,8 +7,11 @@ def turing(self, x, out_size, memory_size,
     return self._x('turing', x, out_size, memory_size, 
                     vec_size, controller_size, shift)
 
-def batch_slice(self, x, position, axis, shift = 0):
+def batch_slice(self, x, position, axis = 0, shift = 0):
     return self._x('batch_slice', x, position, axis, shift)
+
+def concat(self, x_list, axis = 0):
+    return self._x('concat', *(x_list + [axis]))
 
 def portal(self, shape = (0,)):
     return self._x('portal', shape)
@@ -28,14 +31,20 @@ def conv2d(self, x, kernel, pad = (0, 0), stride = (1, 1)):
 def maxpool2(self, x):
     return self._x('maxpool2', x)
 
-def lstm(self, x, lens, hidden_size, forget_bias = None):
-    return self._x('lstm', x, lens, hidden_size, forget_bias)
+def lstm(self, x, lens, hidden_size, forget_bias = None, 
+         gate_activation = 'sigmoid', read_activation = 'tanh',
+         transfer = None):
+    return self._x('lstm', x, lens, hidden_size, forget_bias, 
+                    gate_activation, read_activation, transfer)
 
 def matmul(self, x, w):
     return self._x('dot', x, w)
 
 def relu(self, x):
     return self._x('relu', x)
+
+def tanh(self, x):
+    return self._x('tanh', x)
 
 def plus_b(self, x, b):
     return self._x('bias', x, b)
@@ -51,6 +60,9 @@ def batch_norm(self, x, gamma, is_training, momentum = .9):
 
 def reshape(self, x, new_shape, over_batch = False):
     return self._x('reshape', x, new_shape, over_batch)
+
+def transpose(self, x, trans_dim):
+    return self._x('transpose', x, trans_dim)
 
 def dropout(self, x, keep_prob):
     return self._x('drop', x, keep_prob)
