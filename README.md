@@ -16,19 +16,16 @@ A directed acyclic computational graph builder, built from scratch on `numpy` an
 
 ![img](turing.png)
 
-- `visual-answer.py`. Visual question answering with pretrained weight from VGG16 and an stack of 3 basic LSTMs, on Glove word2vec.
+- `visual-answer.py`. Visual question answering with *pretrained* weight from VGG16 and a stack of 3 basic LSTMs, on Glove word2vec.
 
 <p align="center"> <img src="test.jpg"/> </p>
 
 ```
-Question: What is the animal in the picture?
-Thinking ...
-Answer:
-92.73 %  cat
-05.18 %  dog
-01.03 %  bear
-00.55 %  teddy bear
-00.21 %  bird
+Q: What is the animal in the picture?      . A: cat
+Q: Where is the cat sitting on?            . A: floor
+Q: Is it male or female?                   . A: female
+Q: Is she smiling?                         . A: yes
+Q: What is her color?                      . A: blue
 ```
 
 

@@ -101,16 +101,27 @@ infer_feat = net.concat([lstm3_feat, vgg16_feat])
 answer = build_infer(net, infer_feat)
 
 image_feed = read_image('test.jpg')
-query = u"What is the animal in the picture?"
-query_feed = glove_embed(query)
-len_feed = [query_feed.shape[1]]
+queries = [
+    u"What is the animal in the picture?",
+    u"Where is the cat sitting on?",
+    u"Is it male or female?",
+    u"Is she smiling?",
+    u"What is her color?"
+]
 
-print('\nQuestion: {}'.format(query))
-print('Thinking ...')
-predict, = net.forward([answer], {
+query_feed = list()
+for query in queries:
+     query_feed.append(glove_embed(query))
+image_feed = [image_feed] * len(queries)
+image_feed = np.array(image_feed)
+query_feed = np.array(query_feed)
+
+predicts, = net.forward([answer], {
     image: image_feed,
     question : query_feed,
-    real_len: len_feed
+    real_len: [30] * len(queries) 
 })
-print('Answer:')
-to_word(predict)
+
+for i, predict in enumerate(predicts):
+    print('Q: {:<40}. A: {}'.format(
+        queries[i], to_word(predict)))
