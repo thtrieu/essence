@@ -12,7 +12,7 @@ class concat(Module):
         for shp in shapes: shp[axis] = None
         
         assert shapes[1:] == shapes[:-1], \
-        'All other size must be equal when concatenate'
+        'All other dim must be equal when concatenate'
         self._axis = axis + 1
         
         new_shp = shapes[0]
@@ -28,7 +28,7 @@ class concat(Module):
         return np.concatenate(
             inputs, self._axis)
     
-    def backward(self, grad): # not tested
+    def backward(self, grad):
         returns = list()
         rank = len(grad.shape)
         slices = [slice(None)] * rank
