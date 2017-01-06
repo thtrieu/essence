@@ -14,9 +14,24 @@ A directed acyclic computational graph builder, built from scratch on `numpy` an
 
 3. `lstm-embed.py`: LSTM on word embeddings for Vietnamese Question classification + Dropout + L2 weight decay. 85% on test set and 98% on training set (overfit).
 
-4. `turing-copy`: A neural turing machine with LSTM controller. Test result on copy task length 70:
+4. `turing-copy.py`: A neural turing machine with LSTM controller. Test result on copy task length 70:
 
 ![img](turing.png)
+
+3. `visual-answer.py`. Visual question answering with pretrained weight from VGG16 and an stack of 3 basic LSTMs, on Glove word2vec.
+
+![img](test.jpg)
+
+```
+Question: What is the animal in the picture?
+Thinking ...
+Answer:
+92.73 %  cat
+05.18 %  dog
+01.03 %  bear
+00.55 %  teddy bear
+00.21 %  bird
+```
 
 
 **TODO**: Memory network and GAN, for that I need to improve my speed of `im2col` and `gemm` for `conv` module first.
