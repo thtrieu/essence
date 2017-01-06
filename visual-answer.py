@@ -66,14 +66,12 @@ def build_lstm3(net, question, real_len):
             gate_activation = 'hard_sigmoid',
             transfer = transfer)
 
-    lstms = list()
     lstmed = question
     for count in range(int(3)):
         lstmed = build_1_lstm(lstmed, real_len)
-        lstms.append(lstmed)
-    sliced = net.batch_slice(
+    last_time_step = net.batch_slice(
         lstmed, real_len, shift = -1)
-    return sliced
+    return last_time_step
 
 def build_infer(net, inp):
     def _fc(inp, act):
@@ -88,8 +86,8 @@ def build_infer(net, inp):
     fc3 = _fc(fc2, net.tanh)
     fc4 = _fc(fc3, net.softmax)
     return fc4
-        
-print('Building QA brain ...')
+
+# Build the net.
 net = Net()
 image = net.portal((224, 224, 3))
 question = net.portal((40, 300))
