@@ -1,9 +1,7 @@
 """
 Code modified from 
-
 https://github.com/iamaaditya/VQA_Demo/blob/master/Visual_Question_Answering_Demo_in_python_notebook.ipynb
-
-Mostly to be compatible with python3
+Please visit there to get the trained weights :)
 """
 import sys, os 
 

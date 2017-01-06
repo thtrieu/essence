@@ -11,9 +11,6 @@ class Optimizer(object):
         self._current = var_slot
         var_slot.apply_grad(self._rule)
         self._current = None
-    
-    def clip(self, val):
-        self
 
     def finalize_step(self): pass
     def _construct(*args, **kwargs): pass
@@ -34,7 +31,6 @@ class RMSPropOptimizer(Optimizer):
         self._moments = dict()
     
     def _rule(self, v, g):
-        g = np.clip(g, -10., 10.)
         c = self._current
         m = self._moments
         if c not in m:
@@ -54,7 +50,6 @@ class AdamOptimizer(Optimizer):
         self._moments = dict()
     
     def _rule(self, v, g):
-        g = np.clip(g, -5., 5.)
         c = self._current
         m = self._moments
         if c not in m:
