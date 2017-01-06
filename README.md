@@ -18,7 +18,7 @@ A directed acyclic computational graph builder, built from scratch on `numpy` an
 
 ![img](turing.png)
 
-3. `visual-answer.py`. Visual question answering with pretrained weight from VGG16 and an stack of 3 basic LSTMs, on Glove word2vec.
+5. `visual-answer.py`. Visual question answering with pretrained weight from VGG16 and an stack of 3 basic LSTMs, on Glove word2vec.
 
 ![img](test.jpg)
 
