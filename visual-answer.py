@@ -8,7 +8,7 @@ from src.utils.visualqa import vgg16_model, lstm3_model, infer_model
 Model:
 
 lstm x 3 -----\
-               > concatenate -> (dense, tanh) x 3 -> (dense, softmax)
+                > concatenate -> (dense, tanh) x 3 -> (dense, softmax) -> answer
 vgg16   ------/
 
 From: https://github.com/iamaaditya/VQA_Demo
