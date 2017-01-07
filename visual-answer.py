@@ -4,6 +4,16 @@ from src.utils.visualqa import yield_weights, to_word
 from src.utils.visualqa import glove_embed, read_image
 from src.utils.visualqa import vgg16_model, lstm3_model, infer_model
 
+'''
+Model:
+
+lstm x 3 -----\
+               > concatenate -> (dense, tanh) x 3 -> (dense, softmax)
+vgg16   ------/
+
+From: https://github.com/iamaaditya/VQA_Demo
+'''
+
 vgg16_weights = yield_weights(vgg16_model)
 lstm3_weights = yield_weights(lstm3_model)
 infer_weights = yield_weights(infer_model)
