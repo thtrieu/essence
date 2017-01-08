@@ -69,3 +69,9 @@ class Qfunction(object):
     def assign(self, values):
         feed_dict = dict(zip(self._feed, values))
         self._net.forward(self._assign_ops, feed_dict)
+    
+    def save(self, file_name):
+        self._net.save_checkpoint(file_name)
+    
+    def load(self, file_name):
+        self._net.load_checkpoint(file_name)

@@ -68,3 +68,11 @@ class Agent(object):
     def update(self):
         self._target_q.assign(
             self._moving_q.yield_params_values())
+    
+    def save(self, file_name):
+        self._target_q.save(file_name + '_target')
+        self._moving_q.save(file_name + '_moving')
+    
+    def load(self, file_name):
+        self._target_q.load(file_name + '_target')
+        self._moving_q.load(file_name + '_moving')
