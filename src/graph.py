@@ -31,6 +31,9 @@ class DAG(object):
         self._node_pool[new_ptr] = new_node
         return new_ptr   
     
+    def get_module(self, ptr):
+        return self._node_pool[ptr].get_module()
+
     def forward_to_leaf(self, fetches, feed):
         fetch = fetches + [self._leaf]
         return self.forward(fetch, feed)

@@ -1,4 +1,4 @@
-from .module import portal, variable, constant, lookup
+from .module import portal, variable, constant, lookup, assign
 from .activations import *
 from .losses import *
 from .signatures import *
@@ -35,7 +35,8 @@ _module_class_factory = dict({
 	'logistic': logistic,
 	'dynamic_slice': dynamic_slice,
 	'transpose': transpose,
-	'concat': concat
+	'concat': concat,
+	'assign': assign
 })
 
 def module_class_factory(name):

@@ -1,4 +1,5 @@
 from tensorflow.examples.tutorials.mnist import input_data
+from numpy.random import permutation as perm
 from numpy.random import normal as guass
 from numpy.random import binomial as binomial
 from numpy.random import uniform as uniform

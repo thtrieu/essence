@@ -11,6 +11,9 @@ class Node(object):
         self._grad_cache = 0
         self._forward_id = None
     
+    def get_module(self):
+        return self._module
+    
     def set_feed(self, val):
         self._feed = val
 

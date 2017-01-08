@@ -88,3 +88,7 @@ def l2_regularize(self, w, center = 0.):
 def weighted_loss(self, *pairs):
     losses, weights = zip(*pairs)
     return self._x('weighted_loss', weights, *losses)
+
+def assign(self, var, portal):
+    module = self._dagraph.get_module(var)
+    return self._x('assign', portal, module)

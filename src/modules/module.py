@@ -26,6 +26,9 @@ class variable(Module):
         self._var = server.issue_var_slot(val, trainable)
         self._out_shape = val.shape
     
+    def assign(self, new_val):
+        self._var.assign(new_val)
+    
     def forward(self):
         return self._var.val
     
@@ -53,3 +56,14 @@ class constant(Module):
     
     def backward(self, grad):
         pass
+
+class assign(Module):
+    def __init__(self, server, portal, module):
+        self._var = module
+    
+    def forward(self, new_val):
+        self._var.assign(new_val)
+        return None
+    
+    def backward(self, grad):
+        return None, None

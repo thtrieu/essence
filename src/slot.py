@@ -25,6 +25,9 @@ class VariableSlot(object):
     def grad(self):
         return self._grad
     
+    def assign(self, new_val):
+        self._val = new_val
+    
     def lookup(self, pos):
         return np.take(self._val, pos, axis = 0)
 
