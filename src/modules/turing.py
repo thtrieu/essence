@@ -1,7 +1,6 @@
 from .module import Module
 from .rnn_step import ntm_step
 from src.utils import nxshape, guass, xavier, randint
-from src.utils import turing_plot
 import numpy as np
 
 class turing(Module):
