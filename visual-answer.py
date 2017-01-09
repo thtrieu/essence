@@ -110,14 +110,13 @@ answer = build_infer(net, infer_feat)
 
 image_feed = read_image('test.jpg')
 queries = [
-    u"What is the animal in the picture?",
-    u"Where is the cat sitting on?",
-    u"Is it male or female?",
-    u"Is she smiling?",
-    u"What is her color?"
+    u"What is the animal in the picture?"
 ]
 
+import time
+
 query_feed = list()
+start_time = time.time()
 for query in queries:
      query_feed.append(glove_embed(query))
 image_feed = [image_feed] * len(queries)
@@ -133,3 +132,4 @@ predicts, = net.forward([answer], {
 for i, predict in enumerate(predicts):
     print('Q: {:<40}. A: {}'.format(
         queries[i], to_word(predict)))
+print('Answered in {}s'.format(time.time() - start_time))

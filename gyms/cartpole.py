@@ -9,7 +9,7 @@ http://coneural.org/florian/papers/05_cart_pole.pdf
 '''
 
 _G = 9.8
-_F = 7.0
+_F = 10.0
 _MCART = 1.0
 _MPOLE = 0.3
 _MALL = _MCART + _MPOLE
@@ -40,11 +40,6 @@ class CartPole(Environment):
         self._angle = self._angle + _ALPHAA * self._vangle
         self._vangle = self._vangle + _ALPHAA * aangle
 
-        if self._x < 0.0:
-            self._x += 1.0
-        elif self._x > 1.0:
-            self._x = 1.0 - self._x
-
         reward = 0.0
         if self._violates():
             reward = -1.0
@@ -53,15 +48,17 @@ class CartPole(Environment):
         return reward
     
     def appearance(self):
-        return [self._v, self._angle, self._vangle]
+        return [self._x, self._v, self._angle, self._vangle]
 
     def _violates(self):
         check1 = self._angle < - _THRES
         check2 = self._angle > + _THRES
-        return check1 or check2
+        check3 = self._x < -1.0
+        check4 = self._x > +1.0
+        return check1 or check2 or check3 or check4
 
     def _reset(self):
-        self._x = 0.5
+        self._x = 0.0
         self._v = 0.0
         self._angle = 0.0
         self._vangle = 0.0
@@ -71,7 +68,7 @@ class CartPole(Environment):
         # img = self._canvas.copy()
         self._w = 1024; self._h = 256
         img = np.ones((self._h, self._w, 3)) * 255.
-        centerx = self._x * self._w
+        centerx = (self._x * .5 + .5) * self._w
         centery = 0.75 * self._h
         
         upleft = (int(centerx - 10), int(centery - 5))
