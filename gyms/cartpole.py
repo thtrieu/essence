@@ -9,7 +9,7 @@ http://coneural.org/florian/papers/05_cart_pole.pdf
 '''
 
 _G = 9.8
-_F = 10.0
+_F = 15.0
 _MCART = 1.0
 _MPOLE = 0.3
 _MALL = _MCART + _MPOLE
@@ -40,10 +40,8 @@ class CartPole(Environment):
         self._angle = self._angle + _ALPHAA * self._vangle
         self._vangle = self._vangle + _ALPHAA * aangle
 
-        reward = 0.0
-        if self._violates():
-            reward = -1.0
-            self._reset()
+        reward = - abs(self._angle)
+        if self._violates(): self._reset()
 
         return reward
     

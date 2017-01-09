@@ -8,7 +8,7 @@ def _fc_with_wb(net, x, w, b, activate):
 
 def _fc(net, x, inp_dim, out_dim, activate):
     w = net.variable(xavier((inp_dim, out_dim)))
-    b = net.variable(np.ones((out_dim,)) * 0.1 )
+    b = net.variable(np.ones((out_dim,)) * 1e-2 )
     out = _fc_with_wb(net, x, w, b, activate)
     return w, b, out
 
