@@ -28,7 +28,7 @@ Q: Is she smiling?                         . A: yes
 Q: What is her color?                      . A: blue
 ```
 
-- `dqn-cartpole.py`: A classic solved with DQN, with experience replay and target network ofcourse. 
+- `dqn-cartpole.py`: A classic solved with DQN, with experience replay and target network ofcourse. (Illustration below is one-take)
 
 <p align="center"> <img src="cartpole.gif"/> </p>
 
