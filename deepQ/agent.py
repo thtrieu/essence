@@ -4,15 +4,11 @@ from .qfunction import Qfunction
 import numpy as np
 
 class Agent(object):
-    
-    ''' each action is a pair (direct, signal)'''
-    _ACTION_SPACE = [[0., 0.], [0., 1.],
-                     [1., 0.], [1., 1.]]
-
-    def __init__(self, mlp_dims,
-                 batch = 32, gamma = .95):
+    def __init__(self, mlp_dims, action_space,
+                 batch = 32, gamma = .987):
         self._batch = batch
         self._gamma = gamma
+        self._action_space = action_space
         self._exreplay = list() # experience replay
         self._moving_q = Qfunction(False, *mlp_dims)
         self._target_q = Qfunction(True, *mlp_dims)
@@ -20,50 +16,46 @@ class Agent(object):
     def _best_act(self, qfunc, observe):
         max_q_out = None
         observe = list(observe)
-        for action in self._ACTION_SPACE:
+        for action in self._action_space:
             q_inp = np.array([observe + action])
             q_out = qfunc.forward(q_inp)
 
             if not max_q_out or max_q_out < q_out: 
-                max_q_out = q_out
                 best_act = action
+                max_q_out = q_out
                 
         return best_act, max_q_out
 
     def act(self, observe, epsilon):
         rand = uniform()
-        if rand <= epsilon:
-            direct = round(uniform())
-            signal = round(uniform())
+        if rand <= epsilon: # exploration
+            best_act = None
             q_val = None
-        else:
-            (direct, signal), q_val = \
+        elif rand > epsilon: # exploitation
+            best_act, q_val = \
                 self._best_act(
                     self._moving_q, observe)
-        return direct, signal
+        return best_act, q_val
     
     def store_and_learn(self, transition):
         self._exreplay.append(transition)
 
-        shuffle = perm(len(self._exreplay))
-        mini_batch = [self._exreplay[i] \
-            for i in shuffle[:self._batch]]
+        shuffle = perm(len(self._exreplay))[:self._batch]
+        mini_batch = [self._exreplay[i] for i in shuffle]
 
         observe_action_t, \
         reward_t        , \
         observe_tplus1  , \
-            = map(np.array, list(zip(*mini_batch)))
+            = map(np.array, zip(*mini_batch))
 
-        best_q_tplus1 = list(map(
+        best_q_tplus1 = np.array(list(map(
             lambda x: self._best_act(self._target_q, x)[1],
             observe_tplus1 
-        ))
+        )))
 
-        best_q_tplus1 = np.array(best_q_tplus1)[:, None]
-        best_q_tplus1 *= self._gamma
-        reward_t += best_q_tplus1
+        reward_t += best_q_tplus1 * self._gamma
         loss = self._moving_q.train(
-            observe_action_t, reward_t)
+            observe_action_t, reward_t[:, None])
     
     def update(self):
         self._target_q.assign(

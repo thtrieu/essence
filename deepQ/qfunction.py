@@ -14,7 +14,7 @@ def _fc(net, x, inp_dim, out_dim, activate):
 
 def _MLP2(net, inp_dim, hid_dim, out_dim):
     inp = net.portal((inp_dim,))
-    w1, b1, fc1 = _fc(net, inp, inp_dim, hid_dim, net.sigmoid)
+    w1, b1, fc1 = _fc(net, inp, inp_dim, hid_dim, net.relu)
     w2, b2, fc2 = _fc(net, fc1, hid_dim, out_dim, lambda x: x)
     return inp, [w1, b1], [w2, b2], fc2
 
