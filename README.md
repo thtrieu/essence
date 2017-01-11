@@ -30,7 +30,7 @@ Q: What is her color?                      . A: blue
 
 - `dqn-cartpole.py`: A classic solved with DQN, with experience replay and target network ofcourse. (Illustration below is one-take)
 
-<p align="center"> <img src="cartpole.gif"/> </p>
+<p align="center"> <img src="demo_cartpole.gif"/> </p>
 
 **TODO**: Memory network and GAN, for that I need to improve my speed of `im2col` and `gemm` for `conv` module first.
 
