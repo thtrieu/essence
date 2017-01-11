@@ -1,5 +1,5 @@
-from gyms.cartpole import CartPole
-from deepQ import Agent
+from src.gyms.cartpole import CartPole
+from src.agents import Agent
 from src.utils import uniform
 
 env = CartPole()
@@ -12,8 +12,13 @@ MLP_dims = (inp_dim, 4, 1)
 cart = Agent(MLP_dims, action_space)
 
 total = int(1e5)
+save_every = int(1500)
+eps_max = .4; eps_min = .1
+
+print('Press [ESC] to stop')
 for count in range(total):
-    epsilon = max(1. - count * 1.0 / total, .1)
+    epsilon = max(eps_max - count * 1.0 / total, eps_min)
+    #epsilon = .1
     action, q_val = cart.act(observe, epsilon)
     if action is None: # exploration
         action = action_space[round(uniform())]
@@ -28,6 +33,8 @@ for count in range(total):
         cart.update()
         if q_val: print('Q = ', q_val)
     
-    if (count + 1) % 1500 == 0:
+    if (count + 1) % save_every == 0:
         cart.save('cart_{}'.format(count + 1))
+
+    # Visualize and wait for [ESC]
     if env.viz(1) == 27: break
