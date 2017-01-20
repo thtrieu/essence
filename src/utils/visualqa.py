@@ -12,12 +12,21 @@ from keras import backend as K
 K.set_image_dim_ordering('th')
 
 from sklearn.externals import joblib
-from .VGG import VGG_16
+# from .VGG import VGG_16
 
 VQA_model_file_name     = 'tmp/visualqa/VQA_MODEL.json'
 VQA_weights_file_name   = 'tmp/visualqa/VQA_MODEL_WEIGHTS.hdf5'
 label_encoder_file_name = 'tmp/visualqa/FULL_labelencoder_trainval.pkl'
 CNN_weights_file_name   = 'tmp/visualqa/vgg16_weights.h5'
+
+
+label_encoder_file_name = '/home/thtrieu/numpyflow/tmp/visualqa/FULL_labelencoder_trainval.pkl'
+labelencoder = joblib.load(label_encoder_file_name)
+all_words = list()
+for count in range(1000):
+    all_words.append(labelencoder.inverse_transform(count))
+print(all_words)
+exit()
 
 def glove_embed(question):
     word_embeddings = spacy.load(
@@ -68,11 +77,10 @@ def read_image(image_file_name):
     im = cv2.resize(cv2.imread(image_file_name), (224, 224))
     return im.astype(np.float64).copy(order = 'C')
 
-labelencoder = joblib.load(label_encoder_file_name)
-
 def to_word(predict):
     label = np.argmax(predict)
     return labelencoder.inverse_transform(label)
+
 
 vgg16_model = get_image_model(CNN_weights_file_name)
 lstm3_model, infer_model = vqa_models(

@@ -22,10 +22,9 @@ A directed acyclic computational graph builder, built from scratch on `numpy` an
 
 ```
 Q: What is the animal in the picture?      . A: cat
+Q: What is the cat doing?                  . A: sitting
 Q: Where is the cat sitting on?            . A: floor
-Q: Is it male or female?                   . A: female
-Q: Is she smiling?                         . A: yes
-Q: What is her color?                      . A: blue
+Q: What is the cat color?                  . A: white
 ```
 
 - `dqn-cartpole.py`: A classic solved with DQN, with experience replay and target network ofcourse. (Illustration below is one-take)
