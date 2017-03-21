@@ -12,7 +12,7 @@ from keras import backend as K
 K.set_image_dim_ordering('th')
 
 from sklearn.externals import joblib
-# from .VGG import VGG_16
+from .VGG import VGG_16
 
 VQA_model_file_name     = 'tmp/visualqa/VQA_MODEL.json'
 VQA_weights_file_name   = 'tmp/visualqa/VQA_MODEL_WEIGHTS.hdf5'

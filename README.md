@@ -4,6 +4,8 @@
 
 A directed acyclic computational graph builder, built from scratch on `numpy` and `C`, with auto-differentiation supported.
 
+This was not *just another deep learning library*, its clean code base was supposed to be read. Great for any one who want to learn about Backprop design in deep learning libraries.
+
 ### Demos
 
 - `mnist-mlp.py`: Depth-2 multi layer perceptron, with ReLU and Dropout; 95.3% on MNIST.
