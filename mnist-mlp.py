@@ -41,7 +41,9 @@ for count in range(30):
 	
 print('Total time elapsed: {}'.format(time.time() - s))
 
-bias_out = net.forward([bias], {image:mnist_data.test.images})[0]
+bias_out = net.forward([bias], {
+	image: mnist_data.test.images,
+	keep_prob: 1.0})[0]
 true_labels = mnist_data.test.labels.argmax(1)
 pred_labels = bias_out.argmax(1)
 accuracy = np.equal(true_labels, pred_labels).mean()

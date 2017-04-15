@@ -36,6 +36,7 @@ class Node(object):
             elif self._feed is not None:
                 val = [self._feed]
                 self._feed = None
+            #print(type(self._module), len(val))
             self._cache = self._module.forward(*val)
         return self._cache
     
