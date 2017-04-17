@@ -25,8 +25,6 @@ labelencoder = joblib.load(label_encoder_file_name)
 all_words = list()
 for count in range(1000):
     all_words.append(labelencoder.inverse_transform(count))
-print(all_words)
-exit()
 
 def glove_embed(question):
     word_embeddings = spacy.load(
