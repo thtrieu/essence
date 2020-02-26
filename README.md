@@ -2,9 +2,13 @@
 
 ### essence
 
-A directed acyclic computational graph builder, built from scratch on `numpy` and `C`, with auto-differentiation supported.
+A directed acyclic computational graph builder, built from scratch on `numpy` and `C`, including auto-differentiation.
 
-This was not *just another deep learning library*, its clean code base was supposed to be read. Great for any one who want to learn about Backprop design in deep learning libraries.
+This was not *just another deep learning library*, its minimal code base was supposed to demonstrate how to:
+
+* Build neural nets in modules
+* Put the modules together
+* Compute gradients
 
 ### Demos
 
