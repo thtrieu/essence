@@ -6,9 +6,9 @@ A directed acyclic computational graph builder, built from scratch on `numpy` an
 
 This was not *just another deep learning library*, its minimal code base was supposed to demonstrate how to:
 
-* Build neural nets in modules
-* Put the modules together
-* Compute gradients
+* Build neural net modules.
+* Put the modules together.
+* Efficiently compute gradients from this design.
 
 ### Demos
 
